@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  item_name: MyString
+  category: MyString
+  period_range: MyString
+  production_area: MyString
+  carbon_emission_value: 9.99
+  unit: MyString
+  announcement_date: 2025-03-20 21:32:52
+
+two:
+  item_name: MyString
+  category: MyString
+  period_range: MyString
+  production_area: MyString
+  carbon_emission_value: 9.99
+  unit: MyString
+  announcement_date: 2025-03-20 21:32:52

@@ -1,0 +1,12 @@
+<% content_for :title, "Editing carbon emission" %>
+
+<h1>Editing carbon emission</h1>
+
+<%= render "form", carbon_emission: @carbon_emission %>
+
+<br>
+
+<div>
+  <%= link_to "Show this carbon emission", @carbon_emission %> |
+  <%= link_to "Back to carbon emissions", carbon_emissions_path %>
+</div>

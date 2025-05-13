@@ -1,0 +1,10 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render @carbon_emission %>
+
+<div>
+  <%= link_to "Edit this carbon emission", edit_carbon_emission_path(@carbon_emission) %> |
+  <%= link_to "Back to carbon emissions", carbon_emissions_path %>
+
+  <%= button_to "Destroy this carbon emission", @carbon_emission, method: :delete %>
+</div>

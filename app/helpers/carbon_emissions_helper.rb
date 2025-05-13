@@ -1,0 +1,2 @@
+module CarbonEmissionsHelper
+end

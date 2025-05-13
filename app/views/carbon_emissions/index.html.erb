@@ -1,0 +1,61 @@
+<% content_for :title, "Carbon Emissions" %>
+
+<h1>碳排放資料列表</h1>
+
+<% if notice %>
+  <p style="color: green"><%= notice %></p>
+<% end %>
+
+<% if alert %>
+  <p style="color: red"><%= alert %></p>
+<% end %>
+
+<table border="1" cellpadding="5" style="border-collapse: collapse;">
+  <thead>
+    <tr>
+      <th>品項名稱</th>
+      <th>產品類別</th>
+      <th>週期範圍</th>
+      <th>生產區域</th>
+      <th>碳排數值</th>
+      <th>單位</th>
+      <th>公告時間</th>
+      <th>操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @carbon_emissions.each do |ce| %>
+      <tr>
+        <td><%= ce.item_name %></td>
+        <td><%= ce.category %></td>
+        <td><%= ce.period_range %></td>
+        <td><%= ce.production_area %></td>
+        <td><%= ce.carbon_emission_value %></td>
+        <td><%= ce.unit %></td>
+        <td><%= ce.announcement_date&.strftime("%Y-%m-%d") %></td>
+        <td><%= link_to "查看", carbon_emission_path(ce) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to "新增碳排資料", new_carbon_emission_path, class: "btn btn-success" %>
+
+<% if current_user&.role == "admin" %>
+  <hr>
+  <h3>匯入 Excel</h3>
+  <%= form_with url: import_carbon_emissions_path, local: true, method: :post, multipart: true do |f| %>
+    <div>
+      <%= f.label :file, "選擇 Excel 檔案 (.xlsx)" %>
+      <%= f.file_field :file %>
+    </div>
+    <div style="margin-top: 10px;">
+      <%= f.submit "匯入", class: "btn btn-primary" %>
+    </div>
+  <% end %>
+  <p style="margin-top: 10px;">
+    🔽 <%= link_to "下載 Excel 匯入範例", "/碳排資料匯入範例.xlsx", download: true %>
+  </p>
+<% end %>

@@ -1,0 +1,46 @@
+<h1>專案詳細資料</h1>
+
+<p>
+  <strong>ID:</strong>
+  <%= @project.id %>
+</p>
+<p>
+  <strong>專案名稱:</strong>
+  <%= @project.project_name %>
+</p>
+<p>
+  <strong>工程類型:</strong>
+  <%= @project.project_type %>
+</p>
+<p>
+  <strong>工程位置:</strong>
+  <%= @project.location %>
+</p>
+
+<% if @project.project_type == "建築工程" %>
+  <p>
+    <strong>工程面積:</strong>
+    <%= @project.area %>
+  </p>
+  <p>
+    <strong>地上樓層數:</strong>
+    <%= @project.floors_above %>
+  </p>
+  <p>
+    <strong>地下樓層數:</strong>
+    <%= @project.floors_below %>
+  </p>
+<% elsif @project.project_type == "鋪面工程" %>
+  <p>
+    <strong>工程面積:</strong>
+    <%= @project.area %>
+  </p>
+  <p>
+    <strong>工程開挖深度:</strong>
+    <%= @project.excavation_depth %>
+  </p>
+<% else %>
+  <p>此專案不需額外欄位</p>
+<% end %>
+
+<%= link_to "回到列表", projects_path %>

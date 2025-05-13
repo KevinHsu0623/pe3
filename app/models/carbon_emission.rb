@@ -1,0 +1,2 @@
+class CarbonEmission < ApplicationRecord
+end

@@ -1,0 +1,27 @@
+<h2>登入</h2>
+
+<%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+  <div class="field">
+    <%= f.label :username, "帳號" %><br />
+    <%= f.text_field :username, autofocus: true, autocomplete: "username" %>
+  </div>
+
+  <div class="field">
+    <%= f.label :password, "密碼" %><br />
+    <%= f.password_field :password, autocomplete: "current-password" %>
+  </div>
+
+  <% if devise_mapping.rememberable? -%>
+    <div class="field">
+      <%= f.check_box :remember_me %>
+      <%= f.label :remember_me, "記住我" %>
+    </div>
+  <% end -%>
+
+  <div class="actions">
+    <%= f.submit "登入" %>
+  </div>
+<% end %>
+<!-- 新增的「前往註冊」按鈕/連結 -->
+<%= link_to "還沒有帳號？現在註冊", new_user_registration_path, style: "display:inline-block; margin-top:10px;" %>
+<%= render "devise/shared/links" %>

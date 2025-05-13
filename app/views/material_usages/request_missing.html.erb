@@ -1,0 +1,19 @@
+<h2>沒有您需要的材料？</h2>
+<p>請描述您所需的材料，系統將通知管理員。</p>
+
+<%= form_with url: send_request_missing_materials_path, local: true do |f| %>
+  <%= hidden_field_tag :project_id, @project.id %>
+  <%= hidden_field_tag :stage, @stage %>
+
+  <p>
+    <%= label_tag :name, "材料名稱" %>
+    <%= text_field_tag :name %>
+  </p>
+
+  <p>
+    <%= label_tag :message, "用途或補充說明" %><br>
+    <%= text_area_tag :message %>
+  </p>
+
+  <%= submit_tag "送出", class: "btn btn-primary" %>
+<% end %>

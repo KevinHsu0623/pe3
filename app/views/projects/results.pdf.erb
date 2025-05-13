@@ -1,0 +1,38 @@
+<h1>工程碳排放統計報告</h1>
+
+<p><strong>專案名稱：</strong> <%= @project.project_name %></p>
+<p><strong>工程類型：</strong> <%= @project.project_type %></p>
+<p><strong>工程位置：</strong> <%= @project.location %></p>
+<p><strong>面積：</strong> <%= @project.area %> ㎡</p>
+
+<hr>
+
+<p><strong>總碳排放量：</strong>
+  <%= @total_emission.round(2) %> kg CO2e
+</p>
+
+<p><strong>單位面積碳排放：</strong>
+  <%= @emission_per_area ? "#{@emission_per_area.round(2)} kg CO2e/㎡" : "尚未輸入工程面積" %>
+</p>
+
+<h2>排放量前 10 名材料</h2>
+<table border="1" width="100%" cellpadding="5">
+  <thead>
+    <tr>
+      <th>材料名稱</th>
+      <th>排放量 (kg CO2e)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @top10.each do |name, value| %>
+      <tr>
+        <td><%= name %></td>
+        <td><%= value.round(2) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<p style="margin-top: 30px; font-size: 12px;">
+  報表產出時間：<%= Time.zone.now.strftime('%Y-%m-%d %H:%M') %>
+</p>

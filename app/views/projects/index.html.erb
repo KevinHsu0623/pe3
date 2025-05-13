@@ -1,0 +1,29 @@
+<h1>專案列表</h1>
+
+<!-- 若想直接連到新建頁 -->
+<%= link_to "建立新專案", new_project_path %>
+
+<table border="1" cellpadding="5" style="border-collapse: collapse;">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>專案名稱</th>
+      <th>工程類型</th>
+      <th>工程位置</th>
+      <th>操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @projects.each do |project| %>
+      <tr>
+        <td><%= project.id %></td>
+        <td><%= project.project_name %></td>
+        <td><%= project.project_type %></td>
+        <td><%= project.location %></td>
+        <td>
+          <%= link_to "查看", project_path(project) %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

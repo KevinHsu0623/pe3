@@ -1,0 +1,53 @@
+<h1>碳排放統計報表</h1>
+
+<p><strong>總碳排放量：</strong>
+  <%= @total_emission && @total_emission > 0 ? "#{@total_emission.round(2)} kg CO2e" : "尚未輸入任何材料" %>
+</p>
+
+<p><strong>單位面積碳排：</strong>
+  <%= @emission_per_area ? "#{@emission_per_area.round(2)} kg CO2e/㎡" : "尚未輸入工程面積" %>
+</p>
+
+<h2>排放量前 10 名材料</h2>
+<% if @top10.present? %>
+  <table border="1">
+    <tr>
+      <th>材料</th>
+      <th>排放量 (kg CO2e)</th>
+    </tr>
+    <% @top10.each do |name, value| %>
+      <tr>
+        <td><%= name %></td>
+        <td><%= value.round(2) %></td>
+      </tr>
+    <% end %>
+  </table>
+<% else %>
+  <p>尚無任何材料紀錄。</p>
+<% end %>
+
+<h2>碳排佔比圓餅圖</h2>
+<% if @top10.present? %>
+<canvas id="pie-chart" width="300" height="300"></canvas>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const ctx = document.getElementById("pie-chart").getContext("2d");
+    const chart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: <%= raw @top10.map(&:first).to_json %>,
+        datasets: [{
+          data: <%= raw @top10.map { |_, v| v.round(2) }.to_json %>
+        }]
+      }
+    });
+  });
+</script>
+
+<% else %>
+  <p>暫無統計資料。</p>
+<% end %>
+
+<%= link_to "返回專案材料頁", project_material_usages_path(@project, stage: "A1-A3") %>
+<%= link_to "匯出 PDF", project_results_pdf_path(@project), target: "_blank", class: "btn btn-outline" %>

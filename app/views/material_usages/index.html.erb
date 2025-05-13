@@ -1,0 +1,47 @@
+<h1>材料使用紀錄（<%= @stage %>）</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>材料名稱</th>
+      <th>數量</th>
+      <th>單位</th>
+      <th>單位碳排</th>
+      <th>總碳排</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @material_usages.each do |mu| %>
+      <tr>
+        <td><%= mu.carbon_emission.item_name %></td>
+        <td><%= mu.quantity %></td>
+        <td><%= mu.carbon_emission.unit %></td>
+        <td><%= mu.carbon_emission.carbon_emission_value %></td>
+        <td><%= mu.total_emission %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<h3>新增材料</h3>
+<%= form_with model: [@project, @material_usage], local: true do |f| %>
+  <div>
+    <%= f.collection_select :carbon_emission_id, CarbonEmission.all, :id, :item_name %>
+  </div>
+  <div>
+    <%= f.label :quantity %>
+    <%= f.number_field :quantity, step: 0.01 %>
+  </div>
+  <%= f.hidden_field :stage, value: @stage %>
+  <%= f.submit "新增材料" %>
+<% end %>
+
+<hr>
+<%= link_to "沒有我要的材料？", request_missing_materials_path(project_id: @project.id, stage: @stage) %><br>
+
+<% if @stage == "A1-A3" %>
+  <%= link_to "下一步 ➡ A4~A5", project_material_usages_path(@project, stage: "A4-A5"), class: "btn" %>
+<% elsif @stage == "A4-A5" %>
+  <%= link_to "完成 ➡ 查看結果", "/projects/#{@project.id}/results", class: "btn" %>
+<% end %>
+

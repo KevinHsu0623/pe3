@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  project: one
+  carbon_emission: one
+  quantity: 9.99
+  stage: MyString
+
+two:
+  project: two
+  carbon_emission: two
+  quantity: 9.99
+  stage: MyString
