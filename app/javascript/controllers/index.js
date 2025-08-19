@@ -1,4 +1,6 @@
-// Import and register all your controllers from the importmap via controllers/**/*_controller
-import { application } from "controllers/application"
-import { eagerLoadControllersFrom } from "@hotwired/stimulus-loading"
-eagerLoadControllersFrom("controllers", application)
+// This file is auto-generated to register all Stimulus controllers
+
+import { application } from "../application"
+import MaterialSearchController from "./material_search_controller"
+
+application.register("material-search", MaterialSearchController)

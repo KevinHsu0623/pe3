@@ -1,3 +1,4 @@
+<%= render "shared/progress_header" %>
 <% content_for :title, "Carbon Emissions" %>
 
 <h1>碳排放資料列表</h1>
@@ -33,7 +34,8 @@
         <td><%= ce.carbon_emission_value %></td>
         <td><%= ce.unit %></td>
         <td><%= ce.announcement_date&.strftime("%Y-%m-%d") %></td>
-        <td><%= link_to "查看", carbon_emission_path(ce) %></td>
+        <%= link_to "編輯", edit_project_material_usage_path(@project, material_usage), class: "btn btn-sm btn-warning" %>
+<%= link_to "刪除", project_material_usage_path(@project, material_usage), method: :delete, data: { confirm: "確定要刪除嗎？" }, class: "btn btn-sm btn-danger" %>
       </tr>
     <% end %>
   </tbody>

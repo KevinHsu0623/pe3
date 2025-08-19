@@ -1,30 +1,20 @@
-# WickedPDF Global Configuration
-#
-# Use this to set up shared configuration options for your entire application.
-# Any of the configuration options shown here can also be applied to single
-# models by passing arguments to the `render :pdf` call.
-#
-# To learn more, check out the README:
-#
-# https://github.com/mileszs/wicked_pdf/blob/master/README.md
+WickedPdf.config ||= {}
+# 允許 wkhtmltopdf 存取本機檔案，以及設定 asset_host 以載入靜態資源
+WickedPdf.config[:enable_local_file_access] = true
+WickedPdf.config[:asset_host] = 'http://127.0.0.1:3000'# Be sure to restart your server when you modify this file.
 
-WickedPdf.configure do |config|
-  # Path to the wkhtmltopdf executable: This usually isn't needed if using
-  # one of the wkhtmltopdf-binary family of gems.
-  # config.exe_path = '/usr/local/bin/wkhtmltopdf'
-  #   or
-  # config.exe_path = Gem.bin_path('wkhtmltopdf-binary', 'wkhtmltopdf')
+# Version of your assets, change this if you want to expire all your assets.
+Rails.application.config.assets.version = "1.0"
 
-  # Needed for wkhtmltopdf 0.12.6+ to use many wicked_pdf asset helpers
-  # config.enable_local_file_access = true
+# Add additional assets to the asset load path.
+# Rails.application.config.assets.paths << Emoji.images_path
+Rails.application.config.assets.paths << Rails.root.join("node_modules/@fortawesome/fontawesome-free/webfonts")
 
-  # Layout file to be used for all PDFs
-  # (but can be overridden in `render :pdf` calls)
-  # config.layout = 'pdf.html'
+# Add custom font assets path
+Rails.application.config.assets.paths << Rails.root.join("app/assets/fonts")
 
-  # Using wkhtmltopdf without an X server can be achieved by enabling the
-  # 'use_xvfb' flag. This will wrap all wkhtmltopdf commands around the
-  # 'xvfb-run' command, in order to simulate an X server.
-  #
-  # config.use_xvfb = true
-end
+# Precompile custom font files
+Rails.application.config.assets.precompile += %w(
+  NotoSansTC-Regular.ttf
+  NotoSansTC-Bold.ttf
+)

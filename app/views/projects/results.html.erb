@@ -1,53 +1,162 @@
-<h1>碳排放統計報表</h1>
+<%= render "shared/progress_header" %>
 
-<p><strong>總碳排放量：</strong>
-  <%= @total_emission && @total_emission > 0 ? "#{@total_emission.round(2)} kg CO2e" : "尚未輸入任何材料" %>
-</p>
+<!-- 只需引入一次 Chart.js 與 DataLabels 插件 -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 
-<p><strong>單位面積碳排：</strong>
-  <%= @emission_per_area ? "#{@emission_per_area.round(2)} kg CO2e/㎡" : "尚未輸入工程面積" %>
-</p>
+<div style="display: flex; justify-content: space-between; margin-bottom: 2rem;">
+  <!-- 左側：碳排報表 -->
+  <div style="flex: 1;">
+    <h1>碳排放統計報表</h1>
+    <p><strong>總碳排放量：</strong>
+      <%= @total_emission && @total_emission > 0 ? "#{@total_emission.round(2)} kg CO2e" : "尚未輸入任何材料" %>
+    </p>
+    <p><strong>單位面積碳排：</strong>
+      <%= @emission_per_area ? "#{@emission_per_area.round(2)} kg CO2e/㎡" : "尚未輸入工程面積" %>
+    </p>
+  </div>
 
-<h2>排放量前 10 名材料</h2>
-<% if @top10.present? %>
-  <table border="1">
-    <tr>
-      <th>材料</th>
-      <th>排放量 (kg CO2e)</th>
-    </tr>
-    <% @top10.each do |name, value| %>
-      <tr>
-        <td><%= name %></td>
-        <td><%= value.round(2) %></td>
-      </tr>
-    <% end %>
+  <!-- 右側：專案資訊 -->
+  <div style="flex: 1; padding-left: 3rem;">
+    <h2>專案資訊</h2>
+    <ul>
+      <li><strong>專案名稱：</strong> <%= @project.project_name %></li>
+      <li><strong>工程類型：</strong> <%= @project.project_type %></li>
+      <li><strong>工程位置：</strong> <%= @project.location %></li>
+      <% if @project.project_type == "建築工程" %>
+        <li><strong>工程面積：</strong> <%= @project.area %> ㎡</li>
+        <li><strong>地上樓層：</strong> <%= @project.above_ground_floors %> 層</li>
+        <li><strong>地下樓層：</strong> <%= @project.below_ground_floors %> 層</li>
+      <% elsif @project.project_type == "鋪面工程" %>
+        <li><strong>鋪面面積：</strong> <%= @project.area %> ㎡</li>
+        <li><strong>開挖深度：</strong> <%= @project.excavation_depth %> 公尺</li>
+      <% end %>
+    </ul>
+  </div>
+</div>
+
+<h2>排放量前 5 名材料</h2>
+<% if @top5.present? %>
+  <table class="table table-bordered mb-4">
+    <thead>
+      <tr><th>材料</th><th>排放量 (kg CO2e)</th></tr>
+    </thead>
+    <tbody>
+      <% @top5.each do |name, value| %>
+        <tr>
+          <td><%= name %></td>
+          <td><%= value.round(2) %></td>
+        </tr>
+      <% end %>
+    </tbody>
   </table>
 <% else %>
   <p>尚無任何材料紀錄。</p>
 <% end %>
 
-<h2>碳排佔比圓餅圖</h2>
-<% if @top10.present? %>
-<canvas id="pie-chart" width="300" height="300"></canvas>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<hr>
+
+<h2>碳排佔比分析</h2>
+<div class="row">
+  <div class="col-md-6 mb-4">
+    <h5>所有材料碳排占比</h5>
+    <canvas id="combinedPieChart" width="500" height="500"></canvas>
+  </div>
+  <div class="col-md-6 mb-4">
+    <h5>A1~A3 階段材料碳排占比</h5>
+    <canvas id="a1a3-pie" width="300" height="300"></canvas>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-6 mb-4">
+    <h5>A4~A5 階段材料碳排占比</h5>
+    <canvas id="a4a5-pie" width="300" height="300"></canvas>
+  </div>
+  <div class="col-md-6 mb-4">
+    <h5>各階段碳排在總排放中的占比</h5>
+    <canvas id="stage-comparison-pie" width="300" height="300"></canvas>
+  </div>
+</div>
+
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    const ctx = document.getElementById("pie-chart").getContext("2d");
-    const chart = new Chart(ctx, {
-      type: 'pie',
-      data: {
-        labels: <%= raw @top10.map(&:first).to_json %>,
-        datasets: [{
-          data: <%= raw @top10.map { |_, v| v.round(2) }.to_json %>
-        }]
+    Chart.register(ChartDataLabels);
+
+    const commonOptions = {
+      plugins: {
+        datalabels: {
+          formatter: (value, ctx) => {
+            const data = ctx.chart.data.datasets[0].data;
+            const sum  = data.reduce((a, b) => a + b, 0);
+            return (value / sum * 100).toFixed(1) + "%";
+          },
+          color: '#fff',
+          font: { weight: 'bold', size: 14 },
+          anchor: 'center',
+          align: 'center',
+          clip: false
+        }
       }
-    });
+    };
+
+    function drawPie(id, labels, data) {
+      new Chart(document.getElementById(id), {
+        type: 'pie',
+        data: { labels: labels, datasets: [{ data: data }] },
+        options: commonOptions,
+        plugins: [ChartDataLabels]
+      });
+    }
+
+    drawPie("combinedPieChart",
+      <%= raw @top5.map(&:first).to_json %>,
+      <%= raw @top5.map { |_, v| v.round(2).to_f }.to_json %>
+    );
+    drawPie("a1a3-pie",
+      <%= raw @a1a3_top.map(&:first).to_json %>,
+      <%= raw @a1a3_top.map { |_, v| v.round(2).to_f }.to_json %>
+    );
+    drawPie("a4a5-pie",
+      <%= raw @a4a5_top.map(&:first).to_json %>,
+      <%= raw @a4a5_top.map { |_, v| v.round(2).to_f }.to_json %>
+    );
+    drawPie("stage-comparison-pie",
+      ["A1~A3 階段","A4~A5 階段"],
+      [<%= @a1a3_total.round(2).to_f %>, <%= @a4a5_total.round(2).to_f %>]
+    );
+
+    // 匯出前先上傳圖表圖片
+    const canvas = document.getElementById("combinedPieChart");
+    const exportBtn = document.getElementById("exportPdfButton");
+
+    if (canvas && exportBtn) {
+      exportBtn.addEventListener("click", function () {
+        const imageData = canvas.toDataURL("image/png");
+
+        fetch("/reports/upload_chart", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content
+          },
+          body: JSON.stringify({
+            project_id: "<%= @project.id %>",
+            image_data: imageData
+          })
+        }).then(res => {
+          console.log("圖表上傳狀態：", res.status);
+          if (res.ok) {
+            window.location.href = "<%= export_project_path(@project, format: :pdf) %>";
+          } else {
+            alert("圖表上傳失敗，請稍後重試。");
+          }
+        });
+      });
+    }
   });
 </script>
 
-<% else %>
-  <p>暫無統計資料。</p>
-<% end %>
-
-<%= link_to "返回專案材料頁", project_material_usages_path(@project, stage: "A1-A3") %>
-<%= link_to "匯出 PDF", project_results_pdf_path(@project), target: "_blank", class: "btn btn-outline" %>
+<%= link_to "返回專案材料頁", project_material_usages_path(@project, stage: "A1-A3"), class: "btn btn-outline-secondary me-2" %>
+<div class="export-button" style="margin-top: 20px;">
+  <button id="exportPdfButton" class="btn btn-success">匯出完整報告</button>
+</div>

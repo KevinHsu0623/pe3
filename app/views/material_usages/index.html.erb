@@ -1,6 +1,9 @@
-<h1>材料使用紀錄（<%= @stage %>）</h1>
+<%= render "shared/progress_header" %>
 
-<table>
+<h1>
+  <%= @stage == "A4-A5" ? "機具使用紀錄（A4-A5）" : "材料使用紀錄（#{@stage}）" %>
+</h1>
+<table class="table table-bordered">
   <thead>
     <tr>
       <th>材料名稱</th>
@@ -8,6 +11,7 @@
       <th>單位</th>
       <th>單位碳排</th>
       <th>總碳排</th>
+      <th>操作</th> <!-- 新增欄位 -->
     </tr>
   </thead>
   <tbody>
@@ -18,30 +22,118 @@
         <td><%= mu.carbon_emission.unit %></td>
         <td><%= mu.carbon_emission.carbon_emission_value %></td>
         <td><%= mu.total_emission %></td>
+        <td>
+         <%= link_to "修改", edit_project_material_usage_path(@project, mu), class: "btn btn-sm btn-warning" %>
+          <%= button_to "刪除", project_material_usage_path(@project, mu),
+               method: :delete,
+               data: { confirm: "確定要刪除嗎？" },
+               class: "btn btn-sm btn-danger",
+               form: { class: "d-inline" } %>
+        </td>
       </tr>
     <% end %>
   </tbody>
 </table>
+<hr>
 
 <h3>新增材料</h3>
-<%= form_with model: [@project, @material_usage], local: true do |f| %>
-  <div>
-    <%= f.collection_select :carbon_emission_id, CarbonEmission.all, :id, :item_name %>
+
+<%= form_with(model: [@project, MaterialUsage.new], local: true, html: { autocomplete: "off" }) do |f| %>
+  <div data-controller="material-search" class="mb-3 position-relative">
+    <%= f.label :carbon_emission_id, "搜尋材料" %>
+    <div class="input-group">
+      <input type="text"
+             data-material-search-target="input"
+             class="form-control"
+             placeholder="輸入材料名稱"
+             id="material-search-input" />
+      <span class="input-group-text">CO₂e</span>
+    </div>
+
+    <input type="hidden"
+           name="material_usage[carbon_emission_id]"
+           id="carbon-emission-id"
+           data-material-search-target="hidden" />
+
+    <!-- 顯示搜尋結果 -->
+    <ul class="list-group mt-1"
+        id="search-results"
+        data-material-search-target="results"
+        style="position: absolute; z-index: 10; width: 100%; max-height: 200px; overflow-y: auto;"></ul>
+
+    <!-- 顯示選取材料資訊 -->
+    <div id="material-info" class="mt-2 text-muted small"></div>
   </div>
-  <div>
-    <%= f.label :quantity %>
-    <%= f.number_field :quantity, step: 0.01 %>
+
+  <div class="form-group">
+    <%= f.label :quantity, "使用量" %>
+    <%= f.number_field :quantity, step: 0.01, class: "form-control", required: true %>
   </div>
-  <%= f.hidden_field :stage, value: @stage %>
-  <%= f.submit "新增材料" %>
+
+  <%= f.hidden_field :stage, value: params[:stage] %>
+  <%= f.submit "新增材料", class: "btn btn-primary mt-2" %>
 <% end %>
 
-<hr>
-<%= link_to "沒有我要的材料？", request_missing_materials_path(project_id: @project.id, stage: @stage) %><br>
+<hr class="my-4">
+<%= link_to "沒有我要的材料？", request_missing_materials_path(project_id: @project.id, stage: @stage),
+            class: "btn btn-outline-warning mb-2" %><br>
 
 <% if @stage == "A1-A3" %>
-  <%= link_to "下一步 ➡ A4~A5", project_material_usages_path(@project, stage: "A4-A5"), class: "btn" %>
-<% elsif @stage == "A4-A5" %>
-  <%= link_to "完成 ➡ 查看結果", "/projects/#{@project.id}/results", class: "btn" %>
+  <%= link_to "下一步 ➡ A4~A5",
+              project_material_usages_path(@project, stage: "A4-A5"),
+              class: "btn btn-outline-secondary" %>
+<% else %>
+  <%= link_to "完成 ➡ 查看結果",
+              results_project_path(@project),
+              class: "btn btn-success" %>
 <% end %>
 
+<!-- JavaScript for dynamic search -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const input = document.getElementById("material-search-input");
+    const results = document.getElementById("search-results");
+    const hiddenId = document.getElementById("carbon-emission-id");
+    const info = document.getElementById("material-info");
+
+    if (!input) return;
+
+    input.addEventListener("input", function () {
+      const keyword = input.value.trim();
+      const projectId = "<%= @project.id %>";
+      if (keyword.length < 1) {
+        results.innerHTML = "";
+        info.innerHTML = "";
+        return;
+      }
+
+      fetch(`/projects/${projectId}/material_usages/search.json?keyword=${keyword}`)
+        .then(response => response.json())
+        .then(data => {
+          results.innerHTML = data.map(item => `
+            <button type="button" class="list-group-item list-group-item-action"
+              data-id="${item.id}" data-name="${item.item_name}"
+              data-category="${item.category}" data-region="${item.region}"
+              data-date="${item.published_date}" data-unit="${item.unit}"
+              data-value="${item.carbon_emission_value}">
+              ${item.item_name} (${item.unit}, ${item.carbon_emission_value})
+            </button>
+          `).join("");
+
+          document.querySelectorAll("#search-results button").forEach(button => {
+            button.addEventListener("click", function () {
+              input.value = this.dataset.name;
+              hiddenId.value = this.dataset.id;
+              results.innerHTML = "";
+
+              info.innerHTML = `
+                選擇材料：<strong>${this.dataset.name}</strong><br>
+                類別：${this.dataset.category}｜地區：${this.dataset.region}｜公告年份：${this.dataset.date}<br>
+                單位：${this.dataset.unit}｜碳排係數：${this.dataset.value} kgCO₂e/${this.dataset.unit}
+              `;
+            });
+          });
+        });
+    });
+  });
+</script>

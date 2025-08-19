@@ -14,4 +14,5 @@ RailsAdmin.config do |config|
       redirect_to main_app.new_user_session_path, alert: "您沒有管理者權限！"
     end
   end
+
 end

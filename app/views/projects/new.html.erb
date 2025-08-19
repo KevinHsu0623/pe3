@@ -1,128 +1,98 @@
-<h1>建立新專案</h1>
+<%= render "shared/progress_header" %>
 
-<%= form_with model: @project, local: true do |f| %>
-  <!-- 專案名稱 -->
-  <div>
-    <%= f.label :project_name, "專案名稱" %>
-    <%= f.text_field :project_name %>
+<h1 class="mb-4 fw-bold">建立新專案</h1>
+
+<%= form_with model: @project, local: true, class: "row g-3" do |f| %>
+  <div class="col-md-6">
+    <%= f.label :project_name, "專案名稱", class: "form-label" %>
+    <%= f.text_field :project_name, class: "form-control" %>
   </div>
 
-  <!-- 工程位置 -->
-  <div>
-    <%= f.label :location, "工程位置" %>
-    <%= f.text_field :location %>
+<div class="col-12">
+    <%= f.label :location, "工程位置", class: "form-label" %>
+    <%= f.text_field :location, placeholder: "請輸入工程地址", class: "form-control" %>
   </div>
 
-  <!-- 工程類型 (下拉選單) -->
-  <div>
-    <%= f.label :project_type, "工程類型" %>
+  <div class="col-md-6">
+    <%= f.label :project_type, "工程類型", class: "form-label" %>
     <%= f.select :project_type,
-        [
-          ["建築工程", "建築工程"],
-          ["鋪面工程", "鋪面工程"],
-          ["其他工程", "其他工程"]
-        ],
-        {},
-        { id: "project_type_select" }
-    %>
+      [["建築工程", "建築工程"], ["鋪面工程", "鋪面工程"], ["其他工程", "其他工程"]], {},
+      { class: "form-select", id: "project_type_select" } %>
   </div>
 
   <!-- 建築工程欄位 -->
   <div id="building_fields" style="display: none;">
-    <!-- 工程面積 -->
-    <div>
-      <%= f.label :area, "工程面積" %>
-      <%= f.number_field :area, step: 0.01 %>
+    <div class="col-md-4">
+      <%= f.label :area, "工程面積", class: "form-label" %>
+      <%= f.number_field :area, step: 0.01, class: "form-control" %>
+    </div>
+    <div class="col-md-4">
+      <%= f.label :area_unit, "面積單位", class: "form-label" %>
       <%= f.select :area_unit,
-            options_for_select([
-              ["平方公尺 (m²)", "m2"],
-              ["平方公分 (cm²)", "cm2"],
-              ["平方英尺 (ft²)", "ft2"]
-            ], @project.area_unit),
-            prompt: "選擇面積單位" %>
+        options_for_select([["平方公尺 (m²)", "m2"], ["平方公分 (cm²)", "cm2"], ["平方英尺 (ft²)", "ft2"]], @project.area_unit),
+        { prompt: "選擇面積單位" }, class: "form-select" %>
     </div>
-    <!-- 工程地上樓層數 -->
-    <div>
-      <%= f.label :above_ground_floors, "工程地上樓層數" %>
-      <%= f.number_field :above_ground_floors %>
+    <div class="col-md-4">
+      <%= f.label :above_ground_floors, "地上樓層數", class: "form-label" %>
+      <%= f.number_field :above_ground_floors, class: "form-control" %>
       <%= f.select :above_floor_unit,
-            options_for_select([
-              ["層", "floor"],
-              ["米 (m)", "m"],
-              ["公分 (cm)", "cm"],
-              ["英尺 (ft)", "ft"]
-            ], @project.above_floor_unit),
-            prompt: "選擇高度單位" %>
+        options_for_select([["層", "floor"], ["米 (m)", "m"], ["公分 (cm)", "cm"], ["英尺 (ft)", "ft"]], @project.above_floor_unit),
+        { prompt: "選擇高度單位" }, class: "form-select mt-1" %>
     </div>
-    <!-- 工程地下樓層數 -->
-    <div>
-      <%= f.label :below_ground_floors, "工程地下樓層數" %>
-      <%= f.number_field :below_ground_floors %>
+    <div class="col-md-4">
+      <%= f.label :below_ground_floors, "地下樓層數", class: "form-label" %>
+      <%= f.number_field :below_ground_floors, class: "form-control" %>
       <%= f.select :below_floor_unit,
-            options_for_select([
-              ["層", "floor"],
-              ["米 (m)", "m"],
-              ["公分 (cm)", "cm"],
-              ["英尺 (ft)", "ft"]
-            ], @project.below_floor_unit),
-            prompt: "選擇高度單位" %>
+        options_for_select([["層", "floor"], ["米 (m)", "m"], ["公分 (cm)", "cm"], ["英尺 (ft)", "ft"]], @project.below_floor_unit),
+        { prompt: "選擇高度單位" }, class: "form-select mt-1" %>
     </div>
   </div>
 
   <!-- 鋪面工程欄位 -->
   <div id="pavement_fields" style="display: none;">
-    <!-- 工程面積 -->
-    <div>
-      <%= f.label :area, "工程面積" %>
-      <%= f.number_field :area, step: 0.01 %>
-      <%= f.select :area_unit,
-            options_for_select([
-              ["平方公尺 (m²)", "m2"],
-              ["平方公分 (cm²)", "cm2"],
-              ["平方英尺 (ft²)", "ft2"]
-            ], @project.area_unit),
-            prompt: "選擇面積單位" %>
+    <div class="col-md-4">
+      <%= f.label :area, "工程面積", class: "form-label" %>
+      <%= f.number_field :area, step: 0.01, class: "form-control" %>
     </div>
-    <!-- 工程開挖深度 -->
-    <div>
-      <%= f.label :excavation_depth, "工程開挖深度" %>
-      <%= f.number_field :excavation_depth, step: 0.01 %>
+    <div class="col-md-4">
+      <%= f.label :area_unit, "面積單位", class: "form-label" %>
+      <%= f.select :area_unit,
+        options_for_select([["平方公尺 (m²)", "m2"], ["平方公分 (cm²)", "cm2"], ["平方英尺 (ft²)", "ft2"]], @project.area_unit),
+        { prompt: "選擇面積單位" }, class: "form-select" %>
+    </div>
+    <div class="col-md-4">
+      <%= f.label :excavation_depth, "開挖深度", class: "form-label" %>
+      <%= f.number_field :excavation_depth, step: 0.01, class: "form-control" %>
       <%= f.select :depth_unit,
-            options_for_select([
-              ["公尺 (m)", "m"],
-              ["公分 (cm)", "cm"],
-              ["英尺 (ft)", "ft"]
-            ], @project.depth_unit),
-            prompt: "選擇深度單位" %>
+        options_for_select([["公尺 (m)", "m"], ["公分 (cm)", "cm"], ["英尺 (ft)", "ft"]], @project.depth_unit),
+        { prompt: "選擇深度單位" }, class: "form-select mt-1" %>
     </div>
   </div>
 
-  <div>
-    <%= f.submit "建立專案" %>
+  <div class="col-12">
+    <%= f.submit "建立專案", class: "btn btn-primary mt-3" %>
   </div>
 <% end %>
 
-<!-- JavaScript: 根據 project_type 選擇顯示對應欄位 -->
 <script>
   document.addEventListener("DOMContentLoaded", function() {
-    var projectTypeSelect = document.getElementById("project_type_select");
-    var buildingFields = document.getElementById("building_fields");
-    var pavementFields = document.getElementById("pavement_fields");
+    const projectTypeSelect = document.getElementById("project_type_select")
+    const buildingFields = document.getElementById("building_fields")
+    const pavementFields = document.getElementById("pavement_fields")
 
     function toggleFields() {
-      var selectedType = projectTypeSelect.value;
-      buildingFields.style.display = "none";
-      pavementFields.style.display = "none";
+      const selected = projectTypeSelect.value
+      buildingFields.style.display = "none"
+      pavementFields.style.display = "none"
 
-      if (selectedType === "建築工程") {
-        buildingFields.style.display = "block";
-      } else if (selectedType === "鋪面工程") {
-        pavementFields.style.display = "block";
+      if (selected === "建築工程") {
+        buildingFields.style.display = "flex"
+      } else if (selected === "鋪面工程") {
+        pavementFields.style.display = "flex"
       }
-      // 其他工程：不顯示任何額外欄位
     }
 
-    toggleFields();
-    projectTypeSelect.addEventListener("change", toggleFields);
+    toggleFields()
+    projectTypeSelect.addEventListener("change", toggleFields)
   });
 </script>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_21_070141) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_18_061020) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -53,6 +53,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_21_070141) do
     t.string "above_floor_unit"
     t.integer "below_ground_floors"
     t.string "below_floor_unit"
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_projects_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -75,4 +77,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_21_070141) do
 
   add_foreign_key "material_usages", "carbon_emissions"
   add_foreign_key "material_usages", "projects"
+  add_foreign_key "projects", "users"
 end

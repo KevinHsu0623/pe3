@@ -1,9 +1,10 @@
+<%= render "shared/progress_header" %>
+
 <h1>專案列表</h1>
 
-<!-- 若想直接連到新建頁 -->
-<%= link_to "建立新專案", new_project_path %>
+<%= link_to "＋ 建立新專案", new_project_path, class: "btn btn-primary mb-3" %>
 
-<table border="1" cellpadding="5" style="border-collapse: collapse;">
+<table class="table table-bordered">
   <thead>
     <tr>
       <th>ID</th>
@@ -21,7 +22,10 @@
         <td><%= project.project_type %></td>
         <td><%= project.location %></td>
         <td>
-          <%= link_to "查看", project_path(project) %>
+          <%= link_to "查看", project_path(project), class: "btn btn-sm btn-info" %>
+          <%= link_to "編輯", edit_project_path(project), class: "btn btn-sm btn-warning" %>
+          <%= link_to "刪除", project_path(project), method: :delete, data: { confirm: "確定要刪除嗎？" }, class: "btn btn-sm btn-danger" %>
+          <%= link_to "匯出報告 (PDF)", export_project_path(project, format: :pdf), class: "btn btn-sm btn-secondary" %>
         </td>
       </tr>
     <% end %>

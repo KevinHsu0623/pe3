@@ -1,0 +1,18 @@
+<% current_stage = @stage || params[:stage] || controller.action_name %>
+
+<h2 class="mb-3">📌 工程流程進度</h2>
+<p class="text-muted">
+  <% if controller_name == "projects" && action_name == "new" %>
+    <strong class="text-primary">專案資訊</strong> ➜ A1-A3 材料盤查 ➜ A4-A5 施工機具盤查 ➜ 結果分析
+  <% elsif current_stage == "A1-A3" %>
+    專案資訊 ➜ <strong class="text-primary">A1-A3 材料盤查</strong> ➜ A4-A5 施工機具盤查 ➜ 結果分析
+  <% elsif current_stage == "A4-A5" %>
+    專案資訊 ➜ A1-A3 材料盤查 ➜ <strong class="text-primary">A4-A5 施工機具盤查 </strong> ➜ 結果分析
+  <% elsif controller.action_name == "results" %>
+    專案資訊 ➜ A1-A3 材料盤查 ➜ A4-A5 施工機具盤查 ➜ <strong class="text-primary">結果分析</strong>
+  <% else %>
+    專案資訊 ➜ A1-A3 材料盤查 ➜ A4-A5 施工機具盤查 ➜ 結果分析
+  <% end %>
+</p>
+
+<a href="javascript:history.back()" class="btn btn-outline-secondary mb-3">← 回到上一頁</a>

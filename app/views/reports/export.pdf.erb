@@ -1,0 +1,96 @@
+<!-- app/views/reports/export.pdf.erb -->
+
+<h1>報告書</h1>
+
+<h2>一、案件資訊</h2>
+<ul>
+  <li>• 案件名稱：<%= @project.project_name %></li>
+  <li>• 類　型：<%= @project.project_type %></li>
+  <li>• 位　置：<%= @project.location %></li>
+</ul>
+<div class="page-break"></div>
+
+<h2>二、使用者資訊</h2>
+<ul>
+  <li>• 聯絡人：<%= @user.contact_name %>（<%= @user.email %>）</li>
+  <li>• 匯出日期：<%= Time.current.strftime("%Y/%m/%d") %></li>
+</ul>
+<div class="page-break"></div>
+
+<h2>三、專案資訊</h2>
+<table>
+  <tr>
+    <th>工程面積</th><td><%= "#{@project.area} #{@project.area_unit}" %></td>
+    <th>挖掘深度</th><td><%= "#{@project.excavation_depth} #{@project.depth_unit}" %></td>
+  </tr>
+  <tr>
+    <th>樓地上層數</th><td><%= @project.above_ground_floors %></td>
+    <th>樓地下層數</th><td><%= @project.below_ground_floors %></td>
+  </tr>
+</table>
+<div class="page-break"></div>
+
+<h2>四、碳排放統計報表</h2>
+<table>
+  <tr><th>階段</th><th>總排放量 (kg CO₂e)</th></tr>
+  <% @stats.each do |stage, val| %>
+    <tr>
+      <td><%= stage %></td>
+      <td style="text-align:right;"><%= number_with_precision(val, precision: 2) %></td>
+    </tr>
+  <% end %>
+</table>
+<div class="page-break"></div>
+
+<h2>五、材料與機具總表</h2>
+<table>
+  <tr>
+    <th>名稱</th><th>排放係數</th><th>用量</th><th>排放量 (kg CO₂e)</th>
+  </tr>
+<% @material_rows.each do |name, coef, qty_unit, emission| %>
+    <tr>
+      <td><%= name %></td>
+      <td style="text-align:right;"><%= coef %></td>
+      <td><%= qty_unit %></td>
+      <td style="text-align:right;"><%= emission %></td>
+    </tr>
+  <% end %>
+</table>
+<div class="page-break"></div>
+<h2>六、材料使用總表</h2>
+<table>
+  <tr><th>名稱</th><th>排放係數</th><th>用量</th><th>排放量 (kg CO₂e)</th></tr>
+  <% @material_rows.each do |name, coef, qty_unit, emission| %>
+    <tr>
+      <td><%= name %></td>
+      <td class="numeric"><%= coef %></td>
+      <td><%= qty_unit %></td>
+      <td class="numeric"><%= emission %></td>
+    </tr>
+  <% end %>
+</table>
+<div class="page-break"></div>
+
+<h2>七、機具使用總表</h2>
+<table>
+  <tr><th>名稱</th><th>排放係數</th><th>用量</th><th>排放量 (kg CO₂e)</th></tr>
+  <% @equipment_rows.each do |name, coef, qty_unit, emission| %>
+    <tr>
+      <td><%= name %></td>
+      <td class="numeric"><%= coef %></td>
+      <td><%= qty_unit %></td>
+      <td class="numeric"><%= emission %></td>
+    </tr>
+  <% end %>
+</table>
+<div class="page-break"></div>
+
+<h2>八、前 5 名材料分析</h2>
+<ol style="font-size:14pt; margin-left:20px;">
+  <% @top5_data.each do |name, total| %>
+    <% pct = total / @total_emission * 100 %>
+    <li><%= "#{name}：#{sprintf('%.2f', total)} kg CO₂e（#{sprintf('%.2f', pct)}%）" %></li>
+  <% end %>
+</ol>
+<h2>九、碳排放圓餅圖</h2>
+<img src="/piechart_combined_<%= @project.id %>.png" style="width: 500px;" alt="碳排放比例圖">

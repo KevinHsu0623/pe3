@@ -124,3 +124,13 @@ def parse_announcement_date(value)
     Date.parse(value.to_s) rescue nil
   end
 end
+
+def search
+  query = params[:q].to_s.strip
+  results = CarbonEmission
+              .where("item_name ILIKE ?", "%#{query}%")
+              .limit(10)
+              .select(:id, :item_name, :unit, :carbon_emission_value)
+
+  render json: results
+end

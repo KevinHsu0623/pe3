@@ -1,0 +1,32 @@
+<h1>編輯材料使用紀錄</h1>
+
+<%= form_with(model: [@project, @material_usage], local: true) do |f| %>
+  <div class="form-group mb-3">
+    <%= f.label :carbon_emission_id, "材料項目" %>
+    <%= f.collection_select :carbon_emission_id, CarbonEmission.order(:item_name), :id, :item_name,
+          { prompt: "請選擇材料" }, { class: "form-control", required: true, disabled: true } %>
+  </div>
+
+  <% if @material_usage.carbon_emission %>
+    <div class="mb-3 p-3 border rounded bg-light">
+      <p><strong>類別：</strong><%= @material_usage.carbon_emission.category %></p>
+      <p><strong>單位：</strong><%= @material_usage.carbon_emission.unit %></p>
+      <p><strong>單位碳排放量：</strong><%= @material_usage.carbon_emission.carbon_emission_value %> kg CO₂e</p>
+      <p><strong>來源地：</strong><%= @material_usage.carbon_emission.production_area %></p>
+      <p><strong>公告年份：</strong><%= @material_usage.carbon_emission.announcement_date&.strftime("%Y年") %></p>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= f.label :quantity, "使用量" %>
+    <%= f.number_field :quantity, step: 0.01, class: "form-control", required: true %>
+  </div>
+
+  <%= f.hidden_field :stage %>
+
+  <div class="mt-3">
+    <%= f.submit "儲存變更", class: "btn btn-primary" %>
+    <%= link_to "取消", project_material_usages_path(@project, stage: @material_usage.stage),
+                class: "btn btn-outline-secondary" %>
+  </div>
+<% end %>
