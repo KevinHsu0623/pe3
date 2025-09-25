@@ -35,7 +35,7 @@ jobs:
           docker push ghcr.io/${{ github.repository_owner }}/pe3:latest
 
       - name: Remote deploy via SSH
-        uses: appleboy/ssh-action@v1.2.0
+        uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
