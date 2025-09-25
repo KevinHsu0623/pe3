@@ -8,12 +8,15 @@ development:
   <<: *default
   database: pe3_development
 
-production:
-  url: <%= ENV["DATABASE_URL"] %>
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  
 test:
   <<: *default
   database: pe3_test
 
+production:
+  url: <%= ENV["DATABASE_URL"] %>
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+
+  # ActionCable / SolidCable 專用
+  cable:
+    url: <%= ENV["DATABASE_URL"] %>
 # Render 會在執行期注入 DATABASE_URL；這裡不要_
