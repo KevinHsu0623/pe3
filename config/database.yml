@@ -1,4 +1,5 @@
 # config/database.yml
+# config/database.yml
 default: &default
   adapter: postgresql
   encoding: unicode
@@ -13,11 +14,22 @@ test:
   database: pe3_test
 
 production:
-  # 主要應用程式連線
+  # 主應用程式
   primary: &prod_primary
     <<: *default
     url: <%= ENV["DATABASE_URL"] %>
 
-  # SolidCable 用的「cable」連線（與 primary 同一個 DB 也可以）
+  # SolidQueue（工作佇列）
+  queue:
+    <<: *default
+    url: <%= ENV.fetch("QUEUE_DATABASE_URL", ENV["DATABASE_URL"]) %>
+
+  # SolidCable（ActionCable）
   cable:
-    <<: *prod_primary
+    <<: *default
+    url: <%= ENV.fetch("CABLE_DATABASE_URL", ENV["DATABASE_URL"]) %>
+
+  # SolidCache（快取資料庫）
+  cache:
+    <<: *default
+    url: <%= ENV.fetch("CACHE_DATABASE_URL", ENV["DATABASE_URL"]) %>
