@@ -1,0 +1,59 @@
+# ---- Build stage -------------------------------------------------
+FROM ruby:3.2.3 AS build
+
+ENV RAILS_ENV=production \
+    BUNDLE_DEPLOYMENT=1 \
+    BUNDLE_WITHOUT="development test"
+
+# 系統依賴
+RUN apt-get update -y && apt-get install -y --no-install-recommends \
+    build-essential libpq-dev nodejs npm curl git \
+    && rm -rf /var/lib/apt/lists/*
+
+# 安裝 Yarn / esbuild（Rails 8 用）
+RUN npm install -g yarn esbuild
+
+WORKDIR /app
+
+# Gem
+COPY Gemfile Gemfile.lock ./
+RUN gem install bundler -v "~> 2.5" && bundle install
+
+# Node
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
+
+# 複製原始碼
+COPY . .
+
+# 預編資產（Propshaft/Esbuild）
+ARG RAILS_MASTER_KEY
+ENV RAILS_MASTER_KEY=$RAILS_MASTER_KEY
+RUN bundle exec rails assets:precompile
+
+# ---- Runtime stage -----------------------------------------------
+FROM ruby:3.2.3
+
+ENV RAILS_ENV=production \
+    RACK_ENV=production \
+    RAILS_LOG_TO_STDOUT=1 \
+    BUNDLE_DEPLOYMENT=1 \
+    BUNDLE_WITHOUT="development test"
+
+# 系統依賴
+RUN apt-get update -y && apt-get install -y --no-install-recommends \
+    libpq5 curl tini \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# 從 build 階段帶入
+COPY --from=build /usr/local/bundle /usr/local/bundle
+COPY --from=build /app /app
+
+# 入口腳本
+COPY ./entrypoint.sh /usr/bin/entrypoint.sh
+RUN chmod +x /usr/bin/entrypoint.sh
+
+EXPOSE 3000
+ENTRYPOINT ["/usr/bin/tini","--","/usr/bin/entrypoint.sh"]

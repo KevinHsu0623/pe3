@@ -1,0 +1,62 @@
+name: Deploy PE3
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.2
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & Push image
+        run: |
+          docker build \
+            --build-arg RAILS_MASTER_KEY='${{ secrets.RAILS_MASTER_KEY }}' \
+            -t ghcr.io/${{ github.repository_owner }}/pe3:latest .
+          docker push ghcr.io/${{ github.repository_owner }}/pe3:latest
+
+      - name: Remote deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -e
+            mkdir -p ~/apps/pe3
+            cd ~/apps/pe3
+            # 生成/更新 compose 與 env
+            cat > docker-compose.prod.yml <<'YAML'
+            <? DO NOT EDIT: filled at runtime ?>
+            YAML
+            # 用 repo 的 compose 覆蓋（你也可以在伺服器先放好固定版）
+            # 這裡簡化為：從 GitHub 下載最新原始碼的 compose
+            # 你若不想拉原始碼，可把 compose 也放 GH gist 然後 curl 下來
+            # 為簡潔起見，這行用 scp 方式：預先在 secrets 設置 COMPOSE_CONTENT Base64
+            echo "${{ secrets.COMPOSE_B64 }}" | base64 -d > docker-compose.prod.yml
+
+            echo "${{ secrets.ENV_PRODUCTION_B64 }}" | base64 -d > .env.production
+
+            docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+            docker pull ghcr.io/${{ github.repository_owner }}/pe3:latest
+
+            docker compose -f docker-compose.prod.yml up -d
