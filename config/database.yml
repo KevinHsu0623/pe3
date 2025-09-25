@@ -16,6 +16,7 @@ production:
   <<: *default
   url: <%= ENV["DATABASE_URL"] %>
 
+# ⬇⬇⬇ 關鍵：頂層的 cable 設定（SolidCable 會用到）
 cable:
   <<: *default
   url: <%= ENV["DATABASE_URL"] %>
