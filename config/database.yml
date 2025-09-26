@@ -14,22 +14,19 @@ test:
   database: pe3_test
 
 production:
-  # 主應用程式
-  primary: &prod_primary
-    <<: *default
-    url: <%= ENV["DATABASE_URL"] %>
+  primary:
+    adapter: postgresql
+    url: <%= ENV.fetch("DATABASE_URL") %>
+    pool: <%= ENV.fetch("RAILS_MAX_THREADS", 3) %>
 
-  # SolidQueue（工作佇列）
   queue:
-    <<: *default
-    url: <%= ENV.fetch("QUEUE_DATABASE_URL", ENV["DATABASE_URL"]) %>
+    adapter: postgresql
+    url: <%= ENV.fetch("DATABASE_URL") %>
 
-  # SolidCable（ActionCable）
-  cable:
-    <<: *default
-    url: <%= ENV.fetch("CABLE_DATABASE_URL", ENV["DATABASE_URL"]) %>
-
-  # SolidCache（快取資料庫）
   cache:
-    <<: *default
-    url: <%= ENV.fetch("CACHE_DATABASE_URL", ENV["DATABASE_URL"]) %>
+    adapter: postgresql
+    url: <%= ENV.fetch("DATABASE_URL") %>
+
+  cable:
+    adapter: postgresql
+    url: <%= ENV.fetch("DATABASE_URL") %>
