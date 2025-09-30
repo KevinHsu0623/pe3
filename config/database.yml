@@ -2,19 +2,46 @@
 default: &default
   adapter: postgresql
   encoding: unicode
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
 
 development:
-  <<: *default
-  database: pe3_development
+  primary:
+    <<: *default
+    database: pe3_development
+  queue:
+    <<: *default
+    database: pe3_development_queue
+  cache:
+    <<: *default
+    database: pe3_development_cache
+  cable:
+    <<: *default
+    database: pe3_development_cable
 
 test:
-  <<: *default
-  database: pe3_test
+  primary:
+    <<: *default
+    database: pe3_test
+  queue:
+    <<: *default
+    database: pe3_test_queue
+  cache:
+    <<: *default
+    database: pe3_test_cache
+  cable:
+    <<: *default
+    database: pe3_test_cable
 
-# 重要：production 一律用 URL，避免 host/user/password 寫死
 production:
-  <<: *default
-  # 優先吃 DATABASE_URL，沒有的話給一個本機預設，避免編譯期噴錯
-  url: <%= ENV["DATABASE_URL"] || "postgresql://user:pass@localhost:5432/pe3_production" %>
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
+  primary:
+    <<: *default
+    url: <%= ENV["DATABASE_URL"] %>
+  queue:
+    <<: *default
+    url: <%= ENV["DATABASE_URL"] %>
+  cache:
+    <<: *default
+    url: <%= ENV["DATABASE_URL"] %>
+  cable:
+    <<: *default
+    url: <%= ENV["DATABASE_URL"] %>
