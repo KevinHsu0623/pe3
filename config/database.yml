@@ -14,15 +14,7 @@ test:
 
 # 重要：production 一律用 URL，避免 host/user/password 寫死
 production:
-  primary:
-    <<: *default
-    url: <%= ENV.fetch("DATABASE_URL") %>
-  queue:
-    <<: *default
-    url: <%= ENV.fetch("QUEUE_DATABASE_URL", ENV.fetch("DATABASE_URL")) %>
-  cache:
-    <<: *default
-    url: <%= ENV.fetch("CACHE_DATABASE_URL",  ENV.fetch("DATABASE_URL")) %>
-  cable:
-    <<: *default
-    url: <%= ENV.fetch("CABLE_DATABASE_URL",  ENV.fetch("DATABASE_URL")) %>
+  <<: *default
+  # 優先吃 DATABASE_URL，沒有的話給一個本機預設，避免編譯期噴錯
+  url: <%= ENV["DATABASE_URL"] || "postgresql://user:pass@localhost:5432/pe3_production" %>
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
