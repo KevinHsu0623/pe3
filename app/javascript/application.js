@@ -6,3 +6,4 @@ import "chartkick/chart.js"
 const application = Application.start()
 const context = require.context("./controllers", true, /\.js$/)
 application.load(definitionsFromContext(context))
+import "./project_form"
