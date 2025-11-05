@@ -4,7 +4,6 @@ export default class extends Controller {
   static targets = ["input", "hidden", "results"]
 
   connect() {
-    console.log("✅ material-search controller connected")
     this.inputTarget.addEventListener("input", () => this.search())
   }
 
@@ -40,13 +39,3 @@ export default class extends Controller {
     return match ? match[1] : ""
   }
 }
-console.log("✅ material-search controller connected") // 開始就印
-
-...
-
-console.log("🚀 keyword:", keyword)
-console.log("📤 request:", `/projects/${projectId}/material_usages/search.json?keyword=${keyword}`)
-
-...
-
-console.log("📥 搜尋結果：", materials)
