@@ -16,7 +16,7 @@
   <div class="col-md-6">
     <%= f.label :project_type, "工程類型", class: "form-label" %>
     <%= f.select :project_type,
-      [["建築工程", "建築工程"], ["鋪面工程", "鋪面工程"], ["其他工程", "其他工程"]], {},
+      [["建築工程", "建築工程"], ["道路工程", "道路工程"], ["其他工程", "其他工程"]], {},
       { class: "form-select", id: "project_type_select" } %>
   </div>
 
@@ -48,7 +48,7 @@
     </div>
   </div>
 
-  <!-- 鋪面工程欄位 -->
+  <!-- 道路工程欄位 -->
   <div id="pavement_fields" style="display: none;">
     <div class="col-md-4">
       <%= f.label :area, "工程面積", class: "form-label" %>
@@ -87,7 +87,7 @@
 
       if (selected === "建築工程") {
         buildingFields.style.display = "flex"
-      } else if (selected === "鋪面工程") {
+      } else if (selected === "道路工程" || selected === "鋪面工程") {
         pavementFields.style.display = "flex"
       }
     }

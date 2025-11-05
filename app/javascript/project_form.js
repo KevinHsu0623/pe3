@@ -10,8 +10,8 @@ document.addEventListener("turbo:load", function () {
     buildingFields.style.display = "none";
     pavementFields.style.display = "none";
     if (selected === "建築工程")   buildingFields.style.display = "flex";
-    if (selected === "鋪面工程")   pavementFields.style.display = "flex";
-  }
+    if (selected === "道路工程" || selected === "鋪面工程")   pavementFields.style.display = "flex";
+}
 
   toggleFields();
   projectTypeSelect.addEventListener("change", toggleFields);

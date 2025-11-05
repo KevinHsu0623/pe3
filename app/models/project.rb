@@ -1,4 +1,7 @@
 class Project < ApplicationRecord
+  ROAD_ENGINEERING_NEW = "道路工程".freeze
+  ROAD_ENGINEERING_OLD = "鋪面工程".freeze
+
   # 每個專案屬於一個使用者
   belongs_to :user
 
@@ -21,5 +24,13 @@ class Project < ApplicationRecord
       .joins(:carbon_emission)
       .group(:stage)
       .sum(Arel.sql("material_usages.quantity * carbon_emissions.carbon_emission_value"))
+  end
+
+  def project_type_display
+    project_type == ROAD_ENGINEERING_OLD ? ROAD_ENGINEERING_NEW : project_type
+  end
+
+  def road_engineering?
+    project_type_display == ROAD_ENGINEERING_NEW
   end
 end
