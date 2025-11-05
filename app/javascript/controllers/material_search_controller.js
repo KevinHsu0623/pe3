@@ -39,6 +39,7 @@ export default class extends Controller {
   }
 
   resetAfterSubmit(event) {
+    if (event.type === "submit") return
     if (event.detail?.success === false) return
 
     this.inputTarget.value = ""

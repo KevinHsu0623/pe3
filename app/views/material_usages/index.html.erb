@@ -38,7 +38,9 @@
 
 <h3>新增材料</h3>
 
-<%= form_with(model: [@project, MaterialUsage.new], local: true, html: { autocomplete: "off", data: { action: "turbo:submit-end->material-search#resetAfterSubmit" } }) do |f| %>
+<%= form_with(model: [@project, MaterialUsage.new],
+              html: { autocomplete: "off",
+                      data: { action: "submit->material-search#resetAfterSubmit turbo:submit-end->material-search#resetAfterSubmit" } }) do |f| %>
   <div data-controller="material-search"
        data-material-search-project-id-value="<%= @project.id %>"
        class="mb-3 position-relative">

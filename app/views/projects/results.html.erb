@@ -194,6 +194,9 @@
 
   document.addEventListener("turbo:load", setupProjectCharts);
   document.addEventListener("turbo:frame-load", setupProjectCharts);
+  if (document.readyState === "interactive" || document.readyState === "complete") {
+    setupProjectCharts();
+  }
 </script>
 
 <%= link_to "返回專案材料頁", project_material_usages_path(@project, stage: "A1-A3"), class: "btn btn-outline-secondary me-2" %>
