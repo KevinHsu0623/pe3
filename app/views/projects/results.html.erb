@@ -1,9 +1,5 @@
 <%= render "shared/progress_header" %>
 
-<!-- 只需引入一次 Chart.js 與 DataLabels 插件 -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
-
 <div style="display: flex; justify-content: space-between; margin-bottom: 2rem;">
   <!-- 左側：碳排報表 -->
   <div style="flex: 1;">
@@ -82,124 +78,44 @@
 <hr>
 
 <h2>碳排佔比分析</h2>
-<div class="row">
-  <div class="col-md-6 mb-4">
-    <h5>所有材料碳排占比</h5>
-    <canvas id="combinedPieChart" width="500" height="500"></canvas>
+<div
+  class="results-chart-wrapper"
+  data-controller="results-charts"
+  data-results-charts-project-id-value="<%= @project.id %>"
+  data-results-charts-combined-labels-value="<%= raw (@top5 || []).map(&:first).to_json %>"
+  data-results-charts-combined-data-value="<%= raw (@top5 || []).map { |_, v| v.to_f.round(2) }.to_json %>"
+  data-results-charts-a1a3-labels-value="<%= raw (@a1a3_top || []).map(&:first).to_json %>"
+  data-results-charts-a1a3-data-value="<%= raw (@a1a3_top || []).map { |_, v| v.to_f.round(2) }.to_json %>"
+  data-results-charts-a4a5-labels-value="<%= raw (@a4a5_top || []).map(&:first).to_json %>"
+  data-results-charts-a4a5-data-value="<%= raw (@a4a5_top || []).map { |_, v| v.to_f.round(2) }.to_json %>"
+  data-results-charts-stage-labels-value="<%= raw ['A1~A3 階段', 'A4~A5 階段'].to_json %>"
+  data-results-charts-stage-data-value="<%= raw [@a1a3_total.to_f.round(2), @a4a5_total.to_f.round(2)].to_json %>"
+>
+  <div class="row">
+    <div class="col-md-6 mb-4">
+      <h5>所有材料碳排占比</h5>
+      <canvas data-results-charts-target="combined" width="500" height="500"></canvas>
+    </div>
+    <div class="col-md-6 mb-4">
+      <h5>A1~A3 階段材料碳排占比</h5>
+      <canvas data-results-charts-target="a1a3" width="300" height="300"></canvas>
+    </div>
   </div>
-  <div class="col-md-6 mb-4">
-    <h5>A1~A3 階段材料碳排占比</h5>
-    <canvas id="a1a3-pie" width="300" height="300"></canvas>
+  <div class="row">
+    <div class="col-md-6 mb-4">
+      <h5>A4~A5 階段材料碳排占比</h5>
+      <canvas data-results-charts-target="a4a5" width="300" height="300"></canvas>
+    </div>
+    <div class="col-md-6 mb-4">
+      <h5>各階段碳排在總排放中的占比</h5>
+      <canvas data-results-charts-target="stageComparison" width="300" height="300"></canvas>
+    </div>
+  </div>
+  <div class="export-button" style="margin-top: 20px;">
+    <button id="exportPdfButton"
+            class="btn btn-success"
+            data-results-charts-target="exportButton">匯出完整報告</button>
   </div>
 </div>
-<div class="row">
-  <div class="col-md-6 mb-4">
-    <h5>A4~A5 階段材料碳排占比</h5>
-    <canvas id="a4a5-pie" width="300" height="300"></canvas>
-  </div>
-  <div class="col-md-6 mb-4">
-    <h5>各階段碳排在總排放中的占比</h5>
-    <canvas id="stage-comparison-pie" width="300" height="300"></canvas>
-  </div>
-</div>
-
-<script>
-  const setupProjectCharts = () => {
-    if (typeof Chart === "undefined" || typeof ChartDataLabels === "undefined") return;
-
-    Chart.register(ChartDataLabels);
-
-    const chartIds = ["combinedPieChart", "a1a3-pie", "a4a5-pie", "stage-comparison-pie"];
-    chartIds.forEach((id) => {
-      const existing = Chart.getChart(id);
-      if (existing) existing.destroy();
-    });
-
-    const commonOptions = {
-      plugins: {
-        datalabels: {
-          formatter: (value, ctx) => {
-            const data = ctx.chart.data.datasets[0].data;
-            const sum  = data.reduce((a, b) => a + b, 0);
-            if (sum === 0) return "0%";
-            return (value / sum * 100).toFixed(1) + "%";
-          },
-          color: "#fff",
-          font: { weight: "bold", size: 14 },
-          anchor: "center",
-          align: "center",
-          clip: false
-        }
-      }
-    };
-
-    const drawPie = (id, labels, data) => {
-      const canvas = document.getElementById(id);
-      if (!canvas) return;
-
-      new Chart(canvas, {
-        type: "pie",
-        data: { labels, datasets: [{ data }] },
-        options: commonOptions,
-        plugins: [ChartDataLabels]
-      });
-    };
-
-    drawPie("combinedPieChart",
-      <%= raw @top5.map(&:first).to_json %>,
-      <%= raw @top5.map { |_, v| v.round(2).to_f }.to_json %>
-    );
-    drawPie("a1a3-pie",
-      <%= raw @a1a3_top.map(&:first).to_json %>,
-      <%= raw @a1a3_top.map { |_, v| v.round(2).to_f }.to_json %>
-    );
-    drawPie("a4a5-pie",
-      <%= raw @a4a5_top.map(&:first).to_json %>,
-      <%= raw @a4a5_top.map { |_, v| v.round(2).to_f }.to_json %>
-    );
-    drawPie("stage-comparison-pie",
-      ["A1~A3 階段", "A4~A5 階段"],
-      [<%= @a1a3_total.round(2).to_f %>, <%= @a4a5_total.round(2).to_f %>]
-    );
-
-    const canvas = document.getElementById("combinedPieChart");
-    const exportBtn = document.getElementById("exportPdfButton");
-
-    if (canvas && exportBtn) {
-      exportBtn.addEventListener("click", () => {
-        const imageData = canvas.toDataURL("image/png");
-
-        fetch("/reports/upload_chart", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content
-          },
-          body: JSON.stringify({
-            project_id: "<%= @project.id %>",
-            image_data: imageData
-          })
-        }).then((res) => {
-          if (res.ok) {
-            window.location.href = "<%= export_project_path(@project, format: :pdf) %>";
-          } else {
-            alert("圖表上傳失敗，請稍後重試。");
-          }
-        }).catch(() => {
-          alert("匯出請求失敗，請檢查網路連線。");
-        });
-      }, { once: true });
-    }
-  };
-
-  document.addEventListener("turbo:load", setupProjectCharts);
-  document.addEventListener("turbo:frame-load", setupProjectCharts);
-  if (document.readyState === "interactive" || document.readyState === "complete") {
-    setupProjectCharts();
-  }
-</script>
 
 <%= link_to "返回專案材料頁", project_material_usages_path(@project, stage: "A1-A3"), class: "btn btn-outline-secondary me-2" %>
-<div class="export-button" style="margin-top: 20px;">
-  <button id="exportPdfButton" class="btn btn-success">匯出完整報告</button>
-</div>

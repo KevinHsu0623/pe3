@@ -12,6 +12,10 @@ export default class extends Controller {
   async search() {
     const keyword = this.inputTarget.value.trim()
 
+    if (this.hasHiddenTarget) {
+      this.hiddenTarget.value = ""
+    }
+
     if (!keyword) {
       this.clearResults()
       this.clearInfo()

@@ -22,9 +22,13 @@
         <td><%= project.project_type_display %></td>
         <td><%= project.location %></td>
         <td>
-          <%= link_to "查看", project_path(project), class: "btn btn-sm btn-info" %>
+          <%= link_to "查看", results_project_path(project), class: "btn btn-sm btn-info" %>
           <%= link_to "編輯", edit_project_path(project), class: "btn btn-sm btn-warning" %>
-          <%= link_to "刪除", project_path(project), method: :delete, data: { confirm: "確定要刪除嗎？" }, class: "btn btn-sm btn-danger" %>
+          <%= link_to "刪除",
+                      project_path(project),
+                      method: :delete,
+                      data: { confirm: "確定要刪除此專案嗎？按「取消」將保留專案。" },
+                      class: "btn btn-sm btn-danger" %>
           <%= link_to "匯出報告 (PDF)", export_project_path(project, format: :pdf), class: "btn btn-sm btn-secondary" %>
         </td>
       </tr>

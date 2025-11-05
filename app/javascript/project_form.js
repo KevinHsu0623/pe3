@@ -1,11 +1,13 @@
 // 用 Turbo 事件，避免只在第一次載入觸發
-document.addEventListener("turbo:load", function () {
+const initProjectTypeFields = () => {
   const projectTypeSelect = document.getElementById("project_type_select");
-  if (!projectTypeSelect) return;
+  if (!projectTypeSelect || projectTypeSelect.dataset.enhanced === "true") return;
+
+  projectTypeSelect.dataset.enhanced = "true";
 
   const sections = Array.from(document.querySelectorAll(".project-type-fields"));
 
-  function toggleFields() {
+  const toggleFields = () => {
     const selected = projectTypeSelect.value;
 
     sections.forEach((section) => {
@@ -20,8 +22,12 @@ document.addEventListener("turbo:load", function () {
         section.classList.add("d-none");
       }
     });
-  }
+  };
 
   toggleFields();
   projectTypeSelect.addEventListener("change", toggleFields);
+};
+
+["turbo:load", "turbo:frame-load", "DOMContentLoaded"].forEach((event) => {
+  document.addEventListener(event, initProjectTypeFields);
 });
