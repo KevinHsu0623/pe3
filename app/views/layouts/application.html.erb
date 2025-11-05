@@ -13,40 +13,6 @@
     <%= javascript_include_tag "application", type: "module", "data-turbo-track": "reload" %>
   </head>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const input = document.getElementById("material-search-input");
-      const results = document.getElementById("search-results");
-      const hiddenId = document.getElementById("carbon-emission-id");
-      if (!input) return;
-
-      input.addEventListener("input", function () {
-        const keyword = input.value.trim();
-        const projectId = "<%= @project&.id %>";
-        if (keyword.length < 1) { results.innerHTML = ""; return; }
-
-        fetch(`/projects/${projectId}/material_usages/search.json?keyword=${keyword}`)
-          .then(response => response.json())
-          .then(data => {
-            results.innerHTML = data.map(item => `
-              <button type="button" class="list-group-item list-group-item-action"
-                data-id="${item.id}" data-name="${item.item_name}">
-                ${item.item_name} (${item.unit}, ${item.carbon_emission_value})
-              </button>
-            `).join("");
-
-            document.querySelectorAll("#search-results button").forEach(button => {
-              button.addEventListener("click", function () {
-                input.value = this.dataset.name;
-                hiddenId.value = this.dataset.id;
-                results.innerHTML = "";
-              });
-            });
-          });
-      });
-    });
-  </script>
-
   <body class="container py-4">
     <header class="mb-4">
       <nav>

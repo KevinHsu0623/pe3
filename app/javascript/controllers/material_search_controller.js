@@ -1,41 +1,102 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["input", "hidden", "results"]
+  static targets = ["input", "hidden", "results", "info"]
 
   connect() {
-    this.inputTarget.addEventListener("input", () => this.search())
+    this.handleInput = this.search.bind(this)
+    this.inputTarget.addEventListener("input", this.handleInput)
+  }
+
+  disconnect() {
+    this.inputTarget.removeEventListener("input", this.handleInput)
   }
 
   async search() {
     const keyword = this.inputTarget.value.trim()
     if (!keyword) {
-      this.resultsTarget.innerHTML = ""
+      this.clearResults()
+      this.clearInfo()
       return
     }
 
     const projectId = this.getProjectId()
-    const res = await fetch(`/projects/${projectId}/material_usages/search.json?keyword=${encodeURIComponent(keyword)}`)
-    const materials = await res.json()
+    if (!projectId) return
 
-    this.resultsTarget.innerHTML = materials.map(m =>
-      `<li class="list-group-item" data-id="${m.id}" data-name="${m.item_name}">
-        ${m.item_name} (${m.unit}, ${m.carbon_emission_value})
-      </li>`
-    ).join("")
+    try {
+      const response = await fetch(`/projects/${projectId}/material_usages/search.json?keyword=${encodeURIComponent(keyword)}`)
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
 
-    this.resultsTarget.querySelectorAll("li").forEach(item => {
-      item.addEventListener("click", () => {
-        this.inputTarget.value = item.dataset.name
-        this.hiddenTarget.value = item.dataset.id
-        this.resultsTarget.innerHTML = ""
-      })
+      const materials = await response.json()
+      this.renderResults(Array.isArray(materials) ? materials : [])
+    } catch (error) {
+      console.error("Material search failed:", error)
+      this.clearResults()
+    }
+  }
+
+  renderResults(materials) {
+    this.clearResults()
+
+    if (materials.length === 0) {
+      this.resultsTarget.innerHTML = `<li class="list-group-item text-muted">查無資料</li>`
+      return
+    }
+
+    materials.forEach(material => {
+      const button = document.createElement("button")
+      button.type = "button"
+      button.className = "list-group-item list-group-item-action text-start"
+      button.textContent = `${material.item_name} (${material.unit}, ${material.carbon_emission_value})`
+
+      Object.entries({
+        id: material.id,
+        name: material.item_name,
+        unit: material.unit,
+        value: material.carbon_emission_value,
+        category: material.category || "",
+        region: material.region || "",
+        date: material.published_date || ""
+      }).forEach(([key, value]) => button.dataset[key] = value)
+
+      button.addEventListener("click", () => this.selectMaterial(button.dataset))
+      this.resultsTarget.appendChild(button)
     })
+  }
+
+  selectMaterial(data) {
+    this.inputTarget.value = data.name || ""
+    this.hiddenTarget.value = data.id || ""
+    this.clearResults()
+    this.updateInfo(data)
   }
 
   getProjectId() {
     const path = window.location.pathname
     const match = path.match(/projects\/(\d+)/)
     return match ? match[1] : ""
+  }
+
+  clearResults() {
+    this.resultsTarget.innerHTML = ""
+  }
+
+  updateInfo(data) {
+    if (!this.hasInfoTarget) return
+
+    if (!data.name) {
+      this.clearInfo()
+      return
+    }
+
+    this.infoTarget.innerHTML = `
+      選擇材料：<strong>${data.name}</strong><br>
+      類別：${data.category || "—"}｜地區：${data.region || "—"}｜公告年份：${data.date || "—"}<br>
+      單位：${data.unit || "—"}｜碳排係數：${data.value || "—"} kgCO₂e/${data.unit || ""}
+    `
+  }
+
+  clearInfo() {
+    if (this.hasInfoTarget) this.infoTarget.innerHTML = ""
   }
 }

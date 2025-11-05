@@ -25,14 +25,30 @@ class MaterialUsagesController < ApplicationController
 
   # GET /projects/:project_id/material_usages/search.json
   def search
-  keyword = params[:keyword].to_s.strip
-  results = if keyword.present?
-    CarbonEmission.where("item_name ILIKE ?", "%#{keyword}%").limit(10)
-  else
-    []
+    keyword = params[:keyword].to_s.strip
+
+    results =
+      if keyword.present?
+        like = "%#{ActiveRecord::Base.sanitize_sql_like(keyword)}%"
+        CarbonEmission.where("item_name ILIKE ?", like).order(:item_name).limit(10)
+      else
+        []
+      end
+
+    payload = results.map do |record|
+      {
+        id: record.id,
+        item_name: record.item_name,
+        unit: record.unit,
+        carbon_emission_value: record.carbon_emission_value,
+        category: record.category,
+        region: record.production_area,
+        published_date: record.announcement_date&.strftime("%Y-%m-%d")
+      }
+    end
+
+    render json: payload
   end
-  render json: results.select(:id, :item_name, :unit, :carbon_emission_value)
-end
 
 def edit
   @material_usage = @project.material_usages.find(params[:id])
