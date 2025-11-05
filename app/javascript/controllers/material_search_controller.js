@@ -6,10 +6,18 @@ export default class extends Controller {
   connect() {
     this.handleInput = this.search.bind(this)
     this.inputTarget.addEventListener("input", this.handleInput)
+
+    this.handleKeydown = (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault()
+      }
+    }
+    this.inputTarget.addEventListener("keydown", this.handleKeydown)
   }
 
   disconnect() {
     this.inputTarget.removeEventListener("input", this.handleInput)
+    this.inputTarget.removeEventListener("keydown", this.handleKeydown)
   }
 
   async search() {
