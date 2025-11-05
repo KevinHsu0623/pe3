@@ -3,7 +3,30 @@
 <p><strong>專案名稱：</strong> <%= @project.project_name %></p>
 <p><strong>工程類型：</strong> <%= @project.project_type_display %></p>
 <p><strong>工程位置：</strong> <%= @project.location %></p>
-<p><strong>面積：</strong> <%= @project.area %> ㎡</p>
+
+<% case @project.project_type_display %>
+<% when "建築工程" %>
+  <p><strong>工程面積：</strong> <%= @project.formatted_measurement(@project.area, @project.area_unit) || "—" %></p>
+  <p><strong>地上樓層：</strong> <%= @project.formatted_measurement(@project.above_ground_floors, @project.above_floor_unit) || "—" %></p>
+  <p><strong>地下樓層：</strong> <%= @project.formatted_measurement(@project.below_ground_floors, @project.below_floor_unit) || "—" %></p>
+<% when "道路工程" %>
+  <p><strong>道路工程面積：</strong> <%= @project.formatted_measurement(@project.area, @project.area_unit) || "—" %></p>
+<% when "下水道工程" %>
+  <p><strong>管線長度：</strong> <%= @project.formatted_measurement(@project.sewer_pipeline_length, @project.sewer_pipeline_length_unit) || "—" %></p>
+  <p><strong>斷面積：</strong> <%= @project.formatted_measurement(@project.sewer_cross_section_area, @project.sewer_cross_section_area_unit) || "—" %></p>
+<% when "水利工程" %>
+  <p><strong>護岸長度：</strong> <%= @project.formatted_measurement(@project.hydraulic_revetment_length, @project.hydraulic_revetment_length_unit) || "—" %></p>
+  <p><strong>樁長：</strong> <%= @project.formatted_measurement(@project.hydraulic_pile_length, @project.hydraulic_pile_length_unit) || "—" %></p>
+<% when "國道/公路工程" %>
+  <p><strong>上部面積：</strong> <%= @project.formatted_measurement(@project.highway_superstructure_area, @project.highway_superstructure_area_unit) || "—" %></p>
+  <p><strong>橋墩高度：</strong> <%= @project.formatted_measurement(@project.highway_pier_height, @project.highway_pier_height_unit) || "—" %></p>
+  <p><strong>路基長度：</strong> <%= @project.formatted_measurement(@project.highway_subgrade_length, @project.highway_subgrade_length_unit) || "—" %></p>
+<% when "軌道工程" %>
+  <p><strong>軌道長度：</strong> <%= @project.formatted_measurement(@project.rail_track_length, @project.rail_track_length_unit) || "—" %></p>
+<% when "水保工程" %>
+  <p><strong>坡面工長度：</strong> <%= @project.formatted_measurement(@project.swc_slope_length, @project.swc_slope_length_unit) || "—" %></p>
+  <p><strong>坡面工高度：</strong> <%= @project.formatted_measurement(@project.swc_slope_height, @project.swc_slope_height_unit) || "—" %></p>
+<% end %>
 
 <hr>
 

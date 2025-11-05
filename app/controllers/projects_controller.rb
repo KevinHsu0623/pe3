@@ -115,7 +115,26 @@ class ProjectsController < ApplicationController
       :area, :area_unit,
       :excavation_depth, :depth_unit,
       :above_ground_floors, :above_floor_unit,
-      :below_ground_floors, :below_floor_unit
+      :below_ground_floors, :below_floor_unit,
+      :sewer_pipeline_length, :sewer_pipeline_length_unit,
+      :sewer_cross_section_area, :sewer_cross_section_area_unit,
+      :hydraulic_revetment_length, :hydraulic_revetment_length_unit,
+      :hydraulic_revetment_height, :hydraulic_revetment_height_unit,
+      :hydraulic_revetment_thickness, :hydraulic_revetment_thickness_unit,
+      :hydraulic_pile_length, :hydraulic_pile_length_unit,
+      :hydraulic_pile_cross_section_area, :hydraulic_pile_cross_section_area_unit,
+      :highway_superstructure_area, :highway_superstructure_area_unit,
+      :highway_superstructure_thickness, :highway_superstructure_thickness_unit,
+      :highway_pier_height, :highway_pier_height_unit,
+      :highway_pier_cross_section_area, :highway_pier_cross_section_area_unit,
+      :highway_pavement_area, :highway_pavement_area_unit,
+      :highway_pavement_thickness, :highway_pavement_thickness_unit,
+      :highway_subgrade_length, :highway_subgrade_length_unit,
+      :highway_subgrade_cross_section_area, :highway_subgrade_cross_section_area_unit,
+      :rail_track_length, :rail_track_length_unit,
+      :swc_slope_length, :swc_slope_length_unit,
+      :swc_slope_height, :swc_slope_height_unit,
+      :swc_gabion_area, :swc_gabion_area_unit
     )
   end
 end

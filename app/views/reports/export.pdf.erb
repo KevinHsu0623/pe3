@@ -18,16 +18,68 @@
 <div class="page-break"></div>
 
 <h2>三、專案資訊</h2>
-<table>
-  <tr>
-    <th>工程面積</th><td><%= "#{@project.area} #{@project.area_unit}" %></td>
-    <th>挖掘深度</th><td><%= "#{@project.excavation_depth} #{@project.depth_unit}" %></td>
-  </tr>
-  <tr>
-    <th>樓地上層數</th><td><%= @project.above_ground_floors %></td>
-    <th>樓地下層數</th><td><%= @project.below_ground_floors %></td>
-  </tr>
-</table>
+<% detail_rows = case @project.project_type_display
+   when "建築工程"
+     [
+       ["工程面積", @project.formatted_measurement(@project.area, @project.area_unit)],
+       ["地上樓層", @project.formatted_measurement(@project.above_ground_floors, @project.above_floor_unit)],
+       ["地下樓層", @project.formatted_measurement(@project.below_ground_floors, @project.below_floor_unit)]
+     ]
+   when "道路工程"
+     [
+       ["道路工程面積", @project.formatted_measurement(@project.area, @project.area_unit)],
+       ["開挖深度", @project.formatted_measurement(@project.excavation_depth, @project.depth_unit)]
+     ]
+   when "下水道工程"
+     [
+       ["管線長度", @project.formatted_measurement(@project.sewer_pipeline_length, @project.sewer_pipeline_length_unit)],
+       ["斷面積", @project.formatted_measurement(@project.sewer_cross_section_area, @project.sewer_cross_section_area_unit)]
+     ]
+   when "水利工程"
+     [
+       ["護岸長度", @project.formatted_measurement(@project.hydraulic_revetment_length, @project.hydraulic_revetment_length_unit)],
+       ["護岸高度", @project.formatted_measurement(@project.hydraulic_revetment_height, @project.hydraulic_revetment_height_unit)],
+       ["護岸厚度", @project.formatted_measurement(@project.hydraulic_revetment_thickness, @project.hydraulic_revetment_thickness_unit)],
+       ["樁長", @project.formatted_measurement(@project.hydraulic_pile_length, @project.hydraulic_pile_length_unit)],
+       ["樁截面積", @project.formatted_measurement(@project.hydraulic_pile_cross_section_area, @project.hydraulic_pile_cross_section_area_unit)]
+     ]
+   when "國道/公路工程"
+     [
+       ["上部面積", @project.formatted_measurement(@project.highway_superstructure_area, @project.highway_superstructure_area_unit)],
+       ["上部厚度", @project.formatted_measurement(@project.highway_superstructure_thickness, @project.highway_superstructure_thickness_unit)],
+       ["橋墩高度", @project.formatted_measurement(@project.highway_pier_height, @project.highway_pier_height_unit)],
+       ["橋墩截面積", @project.formatted_measurement(@project.highway_pier_cross_section_area, @project.highway_pier_cross_section_area_unit)],
+       ["鋪面面積", @project.formatted_measurement(@project.highway_pavement_area, @project.highway_pavement_area_unit)],
+       ["鋪面厚度", @project.formatted_measurement(@project.highway_pavement_thickness, @project.highway_pavement_thickness_unit)],
+       ["路基長度", @project.formatted_measurement(@project.highway_subgrade_length, @project.highway_subgrade_length_unit)],
+       ["路基斷面積", @project.formatted_measurement(@project.highway_subgrade_cross_section_area, @project.highway_subgrade_cross_section_area_unit)]
+     ]
+   when "軌道工程"
+     [
+       ["軌道長度", @project.formatted_measurement(@project.rail_track_length, @project.rail_track_length_unit)]
+     ]
+   when "水保工程"
+     [
+       ["坡面工長度", @project.formatted_measurement(@project.swc_slope_length, @project.swc_slope_length_unit)],
+       ["坡面工高度", @project.formatted_measurement(@project.swc_slope_height, @project.swc_slope_height_unit)],
+       ["籠工／石工面積", @project.formatted_measurement(@project.swc_gabion_area, @project.swc_gabion_area_unit)]
+     ]
+   else
+     []
+   end %>
+<% if detail_rows.any? %>
+  <table>
+    <tr><th>項目</th><th>數值</th></tr>
+    <% detail_rows.each do |label, value| %>
+      <tr>
+        <th><%= label %></th>
+        <td><%= value.present? ? value : "—" %></td>
+      </tr>
+    <% end %>
+  </table>
+<% else %>
+  <p>此工程類型暫無額外資訊。</p>
+<% end %>
 <div class="page-break"></div>
 
 <h2>四、碳排放統計報表</h2>

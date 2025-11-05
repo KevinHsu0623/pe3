@@ -2,13 +2,17 @@
 
 <h1 class="mb-4 fw-bold">建立新專案</h1>
 
+<% length_unit_options = [["公分 (cm)", "cm"], ["公尺 (m)", "m"], ["英尺 (ft)", "ft"]] %>
+<% area_unit_options   = [["平方公分 (cm²)", "cm2"], ["平方公尺 (m²)", "m2"], ["平方英尺 (ft²)", "ft2"]] %>
+<% project_type_options = Project.project_type_options %>
+
 <%= form_with model: @project, local: true, class: "row g-3" do |f| %>
   <div class="col-md-6">
     <%= f.label :project_name, "專案名稱", class: "form-label" %>
     <%= f.text_field :project_name, class: "form-control" %>
   </div>
 
-<div class="col-12">
+  <div class="col-12">
     <%= f.label :location, "工程位置", class: "form-label" %>
     <%= f.text_field :location, placeholder: "請輸入工程地址", class: "form-control" %>
   </div>
@@ -16,56 +20,250 @@
   <div class="col-md-6">
     <%= f.label :project_type, "工程類型", class: "form-label" %>
     <%= f.select :project_type,
-      [["建築工程", "建築工程"], ["道路工程", "道路工程"], ["其他工程", "其他工程"]], {},
-      { class: "form-select", id: "project_type_select" } %>
+                 project_type_options,
+                 {},
+                 class: "form-select",
+                 id: "project_type_select" %>
   </div>
 
-  <!-- 建築工程欄位 -->
-  <div id="building_fields" style="display: none;">
+  <!-- 建築工程 -->
+  <div id="building_fields"
+       class="col-12 row g-3 project-type-fields d-none"
+       data-project-types="建築工程">
     <div class="col-md-4">
       <%= f.label :area, "工程面積", class: "form-label" %>
-      <%= f.number_field :area, step: 0.01, class: "form-control" %>
-    </div>
-    <div class="col-md-4">
-      <%= f.label :area_unit, "面積單位", class: "form-label" %>
-      <%= f.select :area_unit,
-        options_for_select([["平方公尺 (m²)", "m2"], ["平方公分 (cm²)", "cm2"], ["平方英尺 (ft²)", "ft2"]], @project.area_unit),
-        { prompt: "選擇面積單位" }, class: "form-select" %>
+      <div class="input-group">
+        <%= f.number_field :area, step: 0.01, class: "form-control" %>
+        <%= f.select :area_unit, area_unit_options, { prompt: "選擇面積單位" }, class: "form-select" %>
+      </div>
     </div>
     <div class="col-md-4">
       <%= f.label :above_ground_floors, "地上樓層數", class: "form-label" %>
       <%= f.number_field :above_ground_floors, class: "form-control" %>
       <%= f.select :above_floor_unit,
-        options_for_select([["層", "floor"], ["米 (m)", "m"], ["公分 (cm)", "cm"], ["英尺 (ft)", "ft"]], @project.above_floor_unit),
-        { prompt: "選擇高度單位" }, class: "form-select mt-1" %>
+                   [["層", "floor"], ["米 (m)", "m"], ["公分 (cm)", "cm"], ["英尺 (ft)", "ft"]],
+                   { prompt: "選擇高度單位" },
+                   class: "form-select mt-1" %>
     </div>
     <div class="col-md-4">
       <%= f.label :below_ground_floors, "地下樓層數", class: "form-label" %>
       <%= f.number_field :below_ground_floors, class: "form-control" %>
       <%= f.select :below_floor_unit,
-        options_for_select([["層", "floor"], ["米 (m)", "m"], ["公分 (cm)", "cm"], ["英尺 (ft)", "ft"]], @project.below_floor_unit),
-        { prompt: "選擇高度單位" }, class: "form-select mt-1" %>
+                   [["層", "floor"], ["米 (m)", "m"], ["公分 (cm)", "cm"], ["英尺 (ft)", "ft"]],
+                   { prompt: "選擇高度單位" },
+                   class: "form-select mt-1" %>
     </div>
   </div>
 
-  <!-- 道路工程欄位 -->
-  <div id="pavement_fields" style="display: none;">
+  <!-- 道路工程 -->
+  <div id="road_fields"
+       class="col-12 row g-3 project-type-fields d-none"
+       data-project-types="道路工程,鋪面工程">
     <div class="col-md-4">
-      <%= f.label :area, "工程面積", class: "form-label" %>
-      <%= f.number_field :area, step: 0.01, class: "form-control" %>
-    </div>
-    <div class="col-md-4">
-      <%= f.label :area_unit, "面積單位", class: "form-label" %>
-      <%= f.select :area_unit,
-        options_for_select([["平方公尺 (m²)", "m2"], ["平方公分 (cm²)", "cm2"], ["平方英尺 (ft²)", "ft2"]], @project.area_unit),
-        { prompt: "選擇面積單位" }, class: "form-select" %>
+      <%= f.label :area, "道路工程面積", class: "form-label" %>
+      <div class="input-group">
+        <%= f.number_field :area, step: 0.01, class: "form-control" %>
+        <%= f.select :area_unit, area_unit_options, { prompt: "選擇面積單位" }, class: "form-select" %>
+      </div>
     </div>
     <div class="col-md-4">
       <%= f.label :excavation_depth, "開挖深度", class: "form-label" %>
-      <%= f.number_field :excavation_depth, step: 0.01, class: "form-control" %>
-      <%= f.select :depth_unit,
-        options_for_select([["公尺 (m)", "m"], ["公分 (cm)", "cm"], ["英尺 (ft)", "ft"]], @project.depth_unit),
-        { prompt: "選擇深度單位" }, class: "form-select mt-1" %>
+      <div class="input-group">
+        <%= f.number_field :excavation_depth, step: 0.01, class: "form-control" %>
+        <%= f.select :depth_unit, length_unit_options, { prompt: "選擇深度單位" }, class: "form-select" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- 下水道工程 -->
+  <div id="sewer_fields"
+       class="col-12 row g-3 project-type-fields d-none"
+       data-project-types="下水道工程">
+    <div class="col-md-4">
+      <%= f.label :sewer_pipeline_length, "管線長度", class: "form-label" %>
+      <div class="input-group">
+        <%= f.number_field :sewer_pipeline_length, step: 0.01, class: "form-control" %>
+        <%= f.select :sewer_pipeline_length_unit, length_unit_options, { prompt: "選擇長度單位" }, class: "form-select" %>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <%= f.label :sewer_cross_section_area, "斷面積", class: "form-label" %>
+      <div class="input-group">
+        <%= f.number_field :sewer_cross_section_area, step: 0.01, class: "form-control" %>
+        <%= f.select :sewer_cross_section_area_unit, area_unit_options, { prompt: "選擇面積單位" }, class: "form-select" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- 水利工程 -->
+  <div id="hydraulic_fields"
+       class="col-12 row g-3 project-type-fields d-none"
+       data-project-types="水利工程">
+    <div class="col-12">
+      <h5>護岸</h5>
+    </div>
+    <div class="col-md-4">
+      <%= f.label :hydraulic_revetment_length, "長度", class: "form-label" %>
+      <div class="input-group">
+        <%= f.number_field :hydraulic_revetment_length, step: 0.01, class: "form-control" %>
+        <%= f.select :hydraulic_revetment_length_unit, length_unit_options, { prompt: "選擇長度單位" }, class: "form-select" %>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <%= f.label :hydraulic_revetment_height, "高度", class: "form-label" %>
+      <div class="input-group">
+        <%= f.number_field :hydraulic_revetment_height, step: 0.01, class: "form-control" %>
+        <%= f.select :hydraulic_revetment_height_unit, length_unit_options, { prompt: "選擇高度單位" }, class: "form-select" %>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <%= f.label :hydraulic_revetment_thickness, "厚度", class: "form-label" %>
+      <div class="input-group">
+        <%= f.number_field :hydraulic_revetment_thickness, step: 0.01, class: "form-control" %>
+        <%= f.select :hydraulic_revetment_thickness_unit, length_unit_options, { prompt: "選擇厚度單位" }, class: "form-select" %>
+      </div>
+    </div>
+
+    <div class="col-12 mt-3">
+      <h5>樁基礎</h5>
+    </div>
+    <div class="col-md-4">
+      <%= f.label :hydraulic_pile_length, "樁長", class: "form-label" %>
+      <div class="input-group">
+        <%= f.number_field :hydraulic_pile_length, step: 0.01, class: "form-control" %>
+        <%= f.select :hydraulic_pile_length_unit, length_unit_options, { prompt: "選擇長度單位" }, class: "form-select" %>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <%= f.label :hydraulic_pile_cross_section_area, "截面積", class: "form-label" %>
+      <div class="input-group">
+        <%= f.number_field :hydraulic_pile_cross_section_area, step: 0.01, class: "form-control" %>
+        <%= f.select :hydraulic_pile_cross_section_area_unit, area_unit_options, { prompt: "選擇面積單位" }, class: "form-select" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- 國道/公路工程 -->
+  <div id="highway_fields"
+       class="col-12 row g-3 project-type-fields d-none"
+       data-project-types="國道/公路工程">
+    <div class="col-12">
+      <h5>上部</h5>
+    </div>
+    <div class="col-md-4">
+      <%= f.label :highway_superstructure_area, "面積", class: "form-label" %>
+      <div class="input-group">
+        <%= f.number_field :highway_superstructure_area, step: 0.01, class: "form-control" %>
+        <%= f.select :highway_superstructure_area_unit, area_unit_options, { prompt: "選擇面積單位" }, class: "form-select" %>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <%= f.label :highway_superstructure_thickness, "厚度", class: "form-label" %>
+      <div class="input-group">
+        <%= f.number_field :highway_superstructure_thickness, step: 0.01, class: "form-control" %>
+        <%= f.select :highway_superstructure_thickness_unit, length_unit_options, { prompt: "選擇厚度單位" }, class: "form-select" %>
+      </div>
+    </div>
+
+    <div class="col-12 mt-3">
+      <h5>橋墩</h5>
+    </div>
+    <div class="col-md-4">
+      <%= f.label :highway_pier_height, "高度", class: "form-label" %>
+      <div class="input-group">
+        <%= f.number_field :highway_pier_height, step: 0.01, class: "form-control" %>
+        <%= f.select :highway_pier_height_unit, length_unit_options, { prompt: "選擇高度單位" }, class: "form-select" %>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <%= f.label :highway_pier_cross_section_area, "截面積", class: "form-label" %>
+      <div class="input-group">
+        <%= f.number_field :highway_pier_cross_section_area, step: 0.01, class: "form-control" %>
+        <%= f.select :highway_pier_cross_section_area_unit, area_unit_options, { prompt: "選擇面積單位" }, class: "form-select" %>
+      </div>
+    </div>
+
+    <div class="col-12 mt-3">
+      <h5>鋪面</h5>
+    </div>
+    <div class="col-md-4">
+      <%= f.label :highway_pavement_area, "面積", class: "form-label" %>
+      <div class="input-group">
+        <%= f.number_field :highway_pavement_area, step: 0.01, class: "form-control" %>
+        <%= f.select :highway_pavement_area_unit, area_unit_options, { prompt: "選擇面積單位" }, class: "form-select" %>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <%= f.label :highway_pavement_thickness, "厚度", class: "form-label" %>
+      <div class="input-group">
+        <%= f.number_field :highway_pavement_thickness, step: 0.01, class: "form-control" %>
+        <%= f.select :highway_pavement_thickness_unit, length_unit_options, { prompt: "選擇厚度單位" }, class: "form-select" %>
+      </div>
+    </div>
+
+    <div class="col-12 mt-3">
+      <h5>路基</h5>
+    </div>
+    <div class="col-md-4">
+      <%= f.label :highway_subgrade_length, "長度", class: "form-label" %>
+      <div class="input-group">
+        <%= f.number_field :highway_subgrade_length, step: 0.01, class: "form-control" %>
+        <%= f.select :highway_subgrade_length_unit, length_unit_options, { prompt: "選擇長度單位" }, class: "form-select" %>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <%= f.label :highway_subgrade_cross_section_area, "斷面積", class: "form-label" %>
+      <div class="input-group">
+        <%= f.number_field :highway_subgrade_cross_section_area, step: 0.01, class: "form-control" %>
+        <%= f.select :highway_subgrade_cross_section_area_unit, area_unit_options, { prompt: "選擇面積單位" }, class: "form-select" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- 軌道工程 -->
+  <div id="rail_fields"
+       class="col-12 row g-3 project-type-fields d-none"
+       data-project-types="軌道工程">
+    <div class="col-md-4">
+      <%= f.label :rail_track_length, "軌道長度", class: "form-label" %>
+      <div class="input-group">
+        <%= f.number_field :rail_track_length, step: 0.01, class: "form-control" %>
+        <%= f.select :rail_track_length_unit, length_unit_options, { prompt: "選擇長度單位" }, class: "form-select" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- 水保工程 -->
+  <div id="swc_fields"
+       class="col-12 row g-3 project-type-fields d-none"
+       data-project-types="水保工程,水保">
+    <div class="col-12">
+      <h5>坡面工</h5>
+    </div>
+    <div class="col-md-4">
+      <%= f.label :swc_slope_length, "長度", class: "form-label" %>
+      <div class="input-group">
+        <%= f.number_field :swc_slope_length, step: 0.01, class: "form-control" %>
+        <%= f.select :swc_slope_length_unit, length_unit_options, { prompt: "選擇長度單位" }, class: "form-select" %>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <%= f.label :swc_slope_height, "高度", class: "form-label" %>
+      <div class="input-group">
+        <%= f.number_field :swc_slope_height, step: 0.01, class: "form-control" %>
+        <%= f.select :swc_slope_height_unit, length_unit_options, { prompt: "選擇高度單位" }, class: "form-select" %>
+      </div>
+    </div>
+
+    <div class="col-12 mt-3">
+      <h5>籠工／石工</h5>
+    </div>
+    <div class="col-md-4">
+      <%= f.label :swc_gabion_area, "面積", class: "form-label" %>
+      <div class="input-group">
+        <%= f.number_field :swc_gabion_area, step: 0.01, class: "form-control" %>
+        <%= f.select :swc_gabion_area_unit, area_unit_options, { prompt: "選擇面積單位" }, class: "form-select" %>
+      </div>
     </div>
   </div>
 
@@ -73,26 +271,3 @@
     <%= f.submit "建立專案", class: "btn btn-primary mt-3" %>
   </div>
 <% end %>
-
-<script>
-  document.addEventListener("DOMContentLoaded", function() {
-    const projectTypeSelect = document.getElementById("project_type_select")
-    const buildingFields = document.getElementById("building_fields")
-    const pavementFields = document.getElementById("pavement_fields")
-
-    function toggleFields() {
-      const selected = projectTypeSelect.value
-      buildingFields.style.display = "none"
-      pavementFields.style.display = "none"
-
-      if (selected === "建築工程") {
-        buildingFields.style.display = "flex"
-      } else if (selected === "道路工程" || selected === "鋪面工程") {
-        pavementFields.style.display = "flex"
-      }
-    }
-
-    toggleFields()
-    projectTypeSelect.addEventListener("change", toggleFields)
-  });
-</script>
