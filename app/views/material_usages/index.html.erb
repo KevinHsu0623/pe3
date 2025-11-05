@@ -38,12 +38,15 @@
 
 <h3>新增材料</h3>
 
-<%= form_with(model: [@project, MaterialUsage.new], local: true, html: { autocomplete: "off" }) do |f| %>
-  <div data-controller="material-search" class="mb-3 position-relative">
+<%= form_with(model: [@project, MaterialUsage.new], local: true, html: { autocomplete: "off", data: { action: "turbo:submit-end->material-search#resetAfterSubmit" } }) do |f| %>
+  <div data-controller="material-search"
+       data-material-search-project-id-value="<%= @project.id %>"
+       class="mb-3 position-relative">
     <%= f.label :carbon_emission_id, "搜尋材料" %>
     <div class="input-group">
       <input type="text"
              data-material-search-target="input"
+             data-action="input->material-search#search keydown->material-search#preventSubmit"
              class="form-control"
              placeholder="輸入材料名稱"
              id="material-search-input" />

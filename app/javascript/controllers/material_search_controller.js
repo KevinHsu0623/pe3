@@ -2,33 +2,22 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["input", "hidden", "results", "info"]
+  static values = { projectId: String }
 
   connect() {
-    this.handleInput = this.search.bind(this)
-    this.inputTarget.addEventListener("input", this.handleInput)
-
-    this.handleKeydown = (event) => {
-      if (event.key === "Enter") {
-        event.preventDefault()
-      }
-    }
-    this.inputTarget.addEventListener("keydown", this.handleKeydown)
-  }
-
-  disconnect() {
-    this.inputTarget.removeEventListener("input", this.handleInput)
-    this.inputTarget.removeEventListener("keydown", this.handleKeydown)
+    this.clearResults()
+    this.clearInfo()
   }
 
   async search() {
     const keyword = this.inputTarget.value.trim()
+
     if (!keyword) {
       this.clearResults()
       this.clearInfo()
       return
     }
-
-    const projectId = this.getProjectId()
+    const projectId = this.projectId
     if (!projectId) return
 
     try {
@@ -41,6 +30,21 @@ export default class extends Controller {
       console.error("Material search failed:", error)
       this.clearResults()
     }
+  }
+
+  preventSubmit(event) {
+    if (event.key === "Enter") {
+      event.preventDefault()
+    }
+  }
+
+  resetAfterSubmit(event) {
+    if (event.detail?.success === false) return
+
+    this.inputTarget.value = ""
+    this.hiddenTarget.value = ""
+    this.clearResults()
+    this.clearInfo()
   }
 
   renderResults(materials) {
@@ -79,12 +83,6 @@ export default class extends Controller {
     this.updateInfo(data)
   }
 
-  getProjectId() {
-    const path = window.location.pathname
-    const match = path.match(/projects\/(\d+)/)
-    return match ? match[1] : ""
-  }
-
   clearResults() {
     this.resultsTarget.innerHTML = ""
   }
@@ -106,5 +104,12 @@ export default class extends Controller {
 
   clearInfo() {
     if (this.hasInfoTarget) this.infoTarget.innerHTML = ""
+  }
+
+  get projectId() {
+    if (this.hasProjectIdValue) return this.projectIdValue
+    const path = window.location.pathname
+    const match = path.match(/projects\/(\d+)/)
+    return match ? match[1] : ""
   }
 }
